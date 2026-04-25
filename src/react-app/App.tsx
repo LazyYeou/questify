@@ -1,66 +1,53 @@
-// src/App.tsx
-
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import cloudflareLogo from "./assets/Cloudflare_Logo.svg";
-import honoLogo from "./assets/hono.svg";
-import "./App.css";
+import './App.css'
+import { TaskForm } from './components/TaskForm'
+import { TaskList } from './components/TaskList'
+import { UserProfile } from './components/UserProfile'
+import { PomodoroTimer } from './components/PomodoroTimer'
+import { useTaskStore } from './store/useTaskStore'
 
 function App() {
-	const [count, setCount] = useState(0);
-	const [name, setName] = useState("unknown");
+  const { activeTask } = useTaskStore();
 
-	return (
-		<>
-			<div>
-				<a href="https://vite.dev" target="_blank">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
-				<a href="https://hono.dev/" target="_blank">
-					<img src={honoLogo} className="logo cloudflare" alt="Hono logo" />
-				</a>
-				<a href="https://workers.cloudflare.com/" target="_blank">
-					<img
-						src={cloudflareLogo}
-						className="logo cloudflare"
-						alt="Cloudflare logo"
-					/>
-				</a>
-			</div>
-			<h1>Vite + React + Hono + Cloudflare</h1>
-			<div className="card">
-				<button
-					onClick={() => setCount((count) => count + 1)}
-					aria-label="increment"
-				>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<div className="card">
-				<button
-					onClick={() => {
-						fetch("/api/")
-							.then((res) => res.json() as Promise<{ name: string }>)
-							.then((data) => setName(data.name));
-					}}
-					aria-label="get name"
-				>
-					Name from API is: {name}
-				</button>
-				<p>
-					Edit <code>worker/index.ts</code> to change the name
-				</p>
-			</div>
-			<p className="read-the-docs">Click on the logos to learn more</p>
-		</>
-	);
+  if (activeTask) {
+    return <PomodoroTimer />;
+  }
+
+  return (
+    <div className="min-h-screen py-10 px-4 sm:px-6">
+      <div className="max-w-xl mx-auto">
+        <header className="text-center mb-10">
+          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic">
+            Questify
+          </h1>
+          <p className="text-slate-500 font-medium text-sm mt-1 uppercase tracking-widest">
+            Level up your productivity
+          </p>
+        </header>
+        
+        <UserProfile />
+        
+        <main className="space-y-12">
+          <section>
+            <TaskForm />
+          </section>
+
+          <section className="space-y-6">
+            <div className="flex items-center gap-4">
+              <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Active Quests</h2>
+              <div className="h-[1px] w-full bg-slate-200"></div>
+            </div>
+            <TaskList />
+          </section>
+        </main>
+
+        <footer className="mt-20 pt-10 border-t border-slate-200 text-center">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">
+            Built with Hono & React
+          </p>
+        </footer>
+      </div>
+    </div>
+  )
 }
 
 export default App;

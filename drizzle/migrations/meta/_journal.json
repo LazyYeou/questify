@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1776863813427,
+      "tag": "0000_dizzy_madripoor",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1777148287864,
+      "tag": "0001_real_lifeguard",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777150258389,
+      "tag": "0002_unique_plazm",
+      "breakpoints": true
+    }
+  ]
+}
