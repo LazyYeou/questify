@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Flame,
   Code2,
@@ -9,53 +9,20 @@ import {
   ShoppingCart,
   User,
   Sparkles,
+  Loader2,
 } from "lucide-react";
+import { useTaskStore, Task } from "../store/useTaskStore";
 
 export default function Dashboard() {
-  const tasks = [
-    {
-      title: "Combinatoric Homework 1",
-      time: "30 Minutes",
-      exp: "60 Exp",
-      icon: "math",
-    },
-    {
-      title: "Computational logic",
-      time: "60 Minutes",
-      exp: "120 Exp",
-      icon: "code",
-    },
-    {
-      title: "Algorithms Analysis",
-      time: "45 Minutes",
-      exp: "90 Exp",
-      icon: "code",
-    },
-    {
-      title: "Discrete Structures",
-      time: "20 Minutes",
-      exp: "40 Exp",
-      icon: "math",
-    },
-    {
-      title: "Data Visualization",
-      time: "50 Minutes",
-      exp: "100 Exp",
-      icon: "code",
-    },
-    {
-      title: "Linear Algebra Quiz",
-      time: "15 Minutes",
-      exp: "30 Exp",
-      icon: "math",
-    },
-    {
-      title: "React Components Refactor",
-      time: "75 Minutes",
-      exp: "150 Exp",
-      icon: "code",
-    },
-  ];
+  const { tasks, fetchTasks, isLoading, setActiveTask } = useTaskStore();
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  const handleTaskClick = (task: Task) => {
+    setActiveTask(task);
+  };
 
   return (
     <div className="w-full flex justify-center items-start">
@@ -143,47 +110,60 @@ export default function Dashboard() {
 
         {/* Task Cards */}
         <div className="mt-7 grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
-          {tasks.map((task, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-[32px] p-4 sm:p-5 flex items-center gap-4 shadow-[0_10px_30px_rgba(0,0,0,0.05)] h-full"
-            >
-              {/* Icon */}
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[20px] sm:rounded-[24px] bg-gradient-to-br from-[#A69BFF] to-[#7D73FF] flex items-center justify-center text-white shrink-0">
-                {task.icon === "math" ? (
-                  <div className="grid grid-cols-2 gap-0.5 text-xl sm:text-2xl font-bold leading-none">
-                    <span>1</span>
-                    <span>2</span>
-                    <span>3</span>
-                    <span>4</span>
-                  </div>
-                ) : (
-                  <Code2 className="w-8 h-8 sm:w-10 sm:h-10" />
-                )}
-              </div>
+          {isLoading ? (
+            <div className="col-span-full flex justify-center py-20">
+              <Loader2 className="w-10 h-10 text-[#5B4DDB] animate-spin" />
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className="col-span-full bg-white/50 border-2 border-dashed border-slate-200 rounded-[32px] p-12 text-center">
+              <p className="text-[#7B7F97] font-bold text-lg">No quests found. Start by creating a new one!</p>
+            </div>
+          ) : (
+            tasks.map((task) => (
+              <div
+                key={task.id}
+                onClick={() => handleTaskClick(task)}
+                className="bg-white rounded-[32px] p-4 sm:p-5 flex items-center gap-4 shadow-[0_10px_30px_rgba(0,0,0,0.05)] h-full cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 group"
+              >
+                {/* Icon */}
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[20px] sm:rounded-[24px] bg-gradient-to-br from-[#A69BFF] to-[#7D73FF] flex items-center justify-center text-white shrink-0 group-hover:shadow-lg transition-all">
+                  {task.tags?.some(t => t.name.toLowerCase().includes('math')) ? (
+                    <div className="grid grid-cols-2 gap-0.5 text-xl sm:text-2xl font-bold leading-none">
+                      <span>1</span>
+                      <span>2</span>
+                      <span>3</span>
+                      <span>4</span>
+                    </div>
+                  ) : (
+                    <Code2 className="w-8 h-8 sm:w-10 sm:h-10" />
+                  )}
+                </div>
 
-              {/* Task Content */}
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-2xl leading-tight font-extrabold text-[#111827] truncate">
-                  {task.title}
-                </h3>
+                {/* Task Content */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg sm:text-2xl leading-tight font-extrabold text-[#111827] truncate">
+                    {task.title}
+                  </h3>
 
-                <div className="flex items-center gap-3 mt-1 sm:mt-2 text-[#7B7F97] font-semibold text-xs sm:text-base">
-                  <span>{task.time}</span>
+                  <div className="flex items-center gap-3 mt-1 sm:mt-2 text-[#7B7F97] font-semibold text-xs sm:text-base">
+                    <span>{task.timeEstimation} Minutes</span>
 
-                  <div className="w-[1px] h-4 bg-[#D8DAE5]" />
+                    <div className="w-[1px] h-4 bg-[#D8DAE5]" />
 
-                  <div className="flex items-center gap-1.5 text-[#F5B100]">
-                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" />
-                    <span>{task.exp}</span>
+                    <div className="flex items-center gap-1.5 text-[#F5B100]">
+                      <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" />
+                      <span>{task.timeEstimation * 2} Exp</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Checkbox */}
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl border-[2px] border-[#E3DFF5] shrink-0" />
-            </div>
-          ))}
+                {/* Status Indicator */}
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl border-[2px] shrink-0 transition-colors ${
+                  task.status === 'completed' ? 'bg-[#5B4DDB] border-[#5B4DDB]' : 'border-[#E3DFF5]'
+                }`} />
+              </div>
+            ))
+          )}
         </div>
 
         {/* Mascot */}
