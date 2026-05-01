@@ -26,6 +26,7 @@ export interface User {
   name: string | null;
   experience: number;
   level: number;
+  streak: number;
 }
 
 interface TaskState {

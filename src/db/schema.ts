@@ -7,6 +7,7 @@ export const users = sqliteTable("users", {
   avatarUrl: text("avatar_url"),
   experience: integer("experience").notNull().default(0),
   level: integer("level").notNull().default(1),
+  streak: integer("streak").notNull().default(0),
   createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
 });
 

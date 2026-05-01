@@ -14,15 +14,21 @@ import {
 import { useTaskStore, Task } from "../store/useTaskStore";
 
 export default function Dashboard() {
-  const { tasks, fetchTasks, isLoading, setActiveTask } = useTaskStore();
+  const { tasks, fetchTasks, isLoading, setActiveTask, user, fetchUser } =
+    useTaskStore();
 
   useEffect(() => {
     fetchTasks();
-  }, [fetchTasks]);
+    fetchUser();
+  }, [fetchTasks, fetchUser]);
 
   const handleTaskClick = (task: Task) => {
     setActiveTask(task);
   };
+
+  const nextLevelExp = (user?.level || 1) * 100;
+  const currentExp = user?.experience || 0;
+  const progress = currentExp % 100;
 
   return (
     <div className="w-full flex justify-center items-start">
@@ -44,18 +50,25 @@ export default function Dashboard() {
 
               {/* Info */}
               <div className="flex-1">
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-[#111827]">Alex</h1>
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-[#111827]">
+                  {user?.name || "Adventurer"}
+                </h1>
 
-                <p className="text-[#5B4DDB] font-bold text-lg sm:text-xl mt-1">Level 5</p>
+                <p className="text-[#5B4DDB] font-bold text-lg sm:text-xl mt-1">
+                  Level {user?.level || 1}
+                </p>
 
                 {/* Progress */}
                 <div className="mt-3 sm:mt-4">
                   <div className="w-full h-3 sm:h-4 bg-[#ECEAF9] rounded-full overflow-hidden">
-                    <div className="w-[45%] h-full rounded-full bg-gradient-to-r from-[#5B4DDB] to-[#7C6CFF]" />
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#5B4DDB] to-[#7C6CFF] transition-all duration-500"
+                      style={{ width: `${progress}%` }}
+                    />
                   </div>
 
                   <div className="text-right text-[#7B7F97] font-semibold text-sm sm:text-lg mt-1 sm:mt-2">
-                    450 / 1000 XP
+                    {currentExp} / {nextLevelExp} XP
                   </div>
                 </div>
               </div>
@@ -92,20 +105,36 @@ export default function Dashboard() {
                 <Flame className="text-orange-600 fill-orange-500 w-8 h-8 sm:w-12 sm:h-12" />
               </div>
 
-              <div className="text-white text-2xl sm:text-5xl font-extrabold">10 Days</div>
+              <div className="text-white text-2xl sm:text-5xl font-extrabold">
+                {user?.streak || 0} Days
+              </div>
+              {console.log(user?.streak)}
             </div>
           </div>
         </div>
 
         {/* Filter Buttons */}
         <div className="grid grid-cols-4 lg:flex lg:flex-wrap lg:justify-start gap-3 sm:gap-4 mt-7">
-          <FilterButton active icon={<Target className="w-5 h-5 sm:w-6 sm:h-6" />} label="Tasks" />
+          <FilterButton
+            active
+            icon={<Target className="w-5 h-5 sm:w-6 sm:h-6" />}
+            label="Tasks"
+          />
 
-          <FilterButton icon={<Code2 className="w-5 h-5 sm:w-6 sm:h-6" />} label="Code" />
+          <FilterButton
+            icon={<Code2 className="w-5 h-5 sm:w-6 sm:h-6" />}
+            label="Code"
+          />
 
-          <FilterButton icon={<Sigma className="w-5 h-5 sm:w-6 sm:h-6" />} label="Math" />
+          <FilterButton
+            icon={<Sigma className="w-5 h-5 sm:w-6 sm:h-6" />}
+            label="Math"
+          />
 
-          <FilterButton icon={<Filter className="w-5 h-5 sm:w-6 sm:h-6" />} label="Sort" />
+          <FilterButton
+            icon={<Filter className="w-5 h-5 sm:w-6 sm:h-6" />}
+            label="Sort"
+          />
         </div>
 
         {/* Task Cards */}
@@ -116,7 +145,9 @@ export default function Dashboard() {
             </div>
           ) : tasks.length === 0 ? (
             <div className="col-span-full bg-white/50 border-2 border-dashed border-slate-200 rounded-[32px] p-12 text-center">
-              <p className="text-[#7B7F97] font-bold text-lg">No quests found. Start by creating a new one!</p>
+              <p className="text-[#7B7F97] font-bold text-lg">
+                No quests found. Start by creating a new one!
+              </p>
             </div>
           ) : (
             tasks.map((task) => (
@@ -127,7 +158,9 @@ export default function Dashboard() {
               >
                 {/* Icon */}
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[20px] sm:rounded-[24px] bg-gradient-to-br from-[#A69BFF] to-[#7D73FF] flex items-center justify-center text-white shrink-0 group-hover:shadow-lg transition-all">
-                  {task.tags?.some(t => t.name.toLowerCase().includes('math')) ? (
+                  {task.tags?.some((t) =>
+                    t.name.toLowerCase().includes("math"),
+                  ) ? (
                     <div className="grid grid-cols-2 gap-0.5 text-xl sm:text-2xl font-bold leading-none">
                       <span>1</span>
                       <span>2</span>
@@ -151,33 +184,55 @@ export default function Dashboard() {
                     <div className="w-[1px] h-4 bg-[#D8DAE5]" />
 
                     <div className="flex items-center gap-1.5 text-[#F5B100]">
-                      <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" />
+                      <Sparkles
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                        fill="currentColor"
+                      />
                       <span>{task.timeEstimation * 2} Exp</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Status Indicator */}
-                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl border-[2px] shrink-0 transition-colors ${
-                  task.status === 'completed' ? 'bg-[#5B4DDB] border-[#5B4DDB]' : 'border-[#E3DFF5]'
-                }`} />
+                <div
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl border-[2px] shrink-0 transition-colors ${
+                    task.status === "completed"
+                      ? "bg-[#5B4DDB] border-[#5B4DDB]"
+                      : "border-[#E3DFF5]"
+                  }`}
+                />
               </div>
             ))
           )}
         </div>
 
         {/* Mascot */}
-        <div className="absolute bottom-24 -right-10 lg:-right-20 text-[80px] sm:text-[120px] z-20 pointer-events-none opacity-50 lg:opacity-100">🦊</div>
+        <div className="absolute bottom-24 -right-10 lg:-right-20 text-[80px] sm:text-[120px] z-20 pointer-events-none opacity-50 lg:opacity-100">
+          🦊
+        </div>
 
         {/* Bottom Navigation */}
         <div className="sticky bottom-4 mt-10 bg-white rounded-[32px] shadow-[0_10px_30px_rgba(0,0,0,0.1)] px-6 py-4 flex items-center justify-around z-40 max-w-lg lg:max-w-xl mx-auto border border-[#EEE]">
-          <BottomItem active icon={<Target className="w-5 h-5 sm:w-7 sm:h-7" />} label="Quests" />
+          <BottomItem
+            active
+            icon={<Target className="w-5 h-5 sm:w-7 sm:h-7" />}
+            label="Quests"
+          />
 
-          <BottomItem icon={<Trophy className="w-5 h-5 sm:w-7 sm:h-7" />} label="Achievements" />
+          <BottomItem
+            icon={<Trophy className="w-5 h-5 sm:w-7 sm:h-7" />}
+            label="Achievements"
+          />
 
-          <BottomItem icon={<ShoppingCart className="w-5 h-5 sm:w-7 sm:h-7" />} label="Shop" />
+          <BottomItem
+            icon={<ShoppingCart className="w-5 h-5 sm:w-7 sm:h-7" />}
+            label="Shop"
+          />
 
-          <BottomItem icon={<User className="w-5 h-5 sm:w-7 sm:h-7" />} label="Profile" />
+          <BottomItem
+            icon={<User className="w-5 h-5 sm:w-7 sm:h-7" />}
+            label="Profile"
+          />
         </div>
       </div>
     </div>
@@ -200,13 +255,17 @@ function FilterButton({ icon, label, active = false }) {
 function BottomItem({ icon, label, active = false }) {
   return (
     <button className="flex flex-col items-center gap-1 group">
-      <div className={`transition-colors ${active ? "text-[#5B4DDB]" : "text-[#7B7F97] group-hover:text-[#5B4DDB]"}`}>
+      <div
+        className={`transition-colors ${active ? "text-[#5B4DDB]" : "text-[#7B7F97] group-hover:text-[#5B4DDB]"}`}
+      >
         {icon}
       </div>
 
       <span
         className={`text-[10px] sm:text-xs font-bold transition-colors ${
-          active ? "text-[#5B4DDB]" : "text-[#7B7F97] group-hover:text-[#5B4DDB]"
+          active
+            ? "text-[#5B4DDB]"
+            : "text-[#7B7F97] group-hover:text-[#5B4DDB]"
         }`}
       >
         {label}
