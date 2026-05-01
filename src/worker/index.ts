@@ -135,15 +135,18 @@ app.put("/api/tasks/:id", async (c) => {
   let userUpdate = null;
   if (isCompleting) {
     const expReward = (updatedTask.timeEstimation || 0) * 2;
+    const coinReward = (updatedTask.timeEstimation || 0) * 5;
     const user = await db.select().from(users).where(eq(users.id, userId)).get();
     if (user) {
       const newExp = user.experience + expReward;
       const newLevel = Math.floor(newExp / 100) + 1;
+      const newCoins = user.coins + coinReward;
       
       [userUpdate] = await db.update(users)
         .set({
           experience: newExp,
           level: newLevel,
+          coins: newCoins,
         })
         .where(eq(users.id, userId))
         .returning();

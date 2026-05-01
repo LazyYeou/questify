@@ -27,6 +27,7 @@ export interface User {
   experience: number;
   level: number;
   streak: number;
+  coins: number;
 }
 
 export type Page =

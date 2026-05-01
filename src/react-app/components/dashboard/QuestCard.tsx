@@ -51,7 +51,7 @@ export const QuestCard: React.FC<QuestCardProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onDeleteClick(task);
+                handleDeleteClick(task);
               }}
               className="p-3 sm:p-2 text-[#7B7F97] hover:text-rose-500 transition-colors"
               title="Abandon Quest"
