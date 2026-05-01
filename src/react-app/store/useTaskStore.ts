@@ -27,7 +27,9 @@ export interface User {
   experience: number;
   level: number;
   streak: number;
+  longestStreak: number;
   coins: number;
+  lastStreakAt: string | null;
 }
 
 export type Page =

@@ -15,6 +15,20 @@ const ProfilePage: React.FC = () => {
         <p className="text-[#5B4DDB] font-extrabold text-xl">Level {user?.level || 1} Elite Scholar</p>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {[
+          { label: "Current Streak", value: `${user?.streak || 0} Days`, color: "bg-[#FFF4E6]", icon: "🔥", iconColor: "text-[#FF9800]" },
+          { label: "Longest Streak", value: `${user?.longestStreak || 0} Days`, color: "bg-[#F1EEFF]", icon: "🏆", iconColor: "text-[#5B4DDB]" },
+          { label: "Treasury", value: `${user?.coins || 0} Coins`, color: "bg-[#E6F9F2]", icon: "💰", iconColor: "text-[#00C48C]" },
+        ].map((stat, i) => (
+          <div key={i} className={`${stat.color} rounded-[32px] p-6 border border-white/50 shadow-sm flex flex-col items-center text-center`}>
+            <span className="text-3xl mb-2">{stat.icon}</span>
+            <p className="text-[#7B7F97] font-bold text-xs uppercase tracking-widest mb-1">{stat.label}</p>
+            <p className="text-[#111827] font-black text-2xl">{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 gap-4">
         <div className="bg-white rounded-[32px] p-8 shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-white">
           <h2 className="text-xl font-black text-[#111827] mb-6 flex items-center gap-2">

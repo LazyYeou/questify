@@ -89,7 +89,7 @@ export function useDashboardState() {
   };
 
   const processedTasks = useMemo(() => {
-    let result = [...tasks];
+    let result = tasks.filter(task => task.status !== 'completed');
 
     if (activeFilter !== "all") {
       result = result.filter((task) =>

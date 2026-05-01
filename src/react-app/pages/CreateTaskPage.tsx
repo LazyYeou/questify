@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { ClipboardList, Sparkles, Target } from 'lucide-react';
 import { useTaskStore } from '../store/useTaskStore';
 
@@ -89,12 +89,35 @@ const IconHeader: React.FC = () => (
 );
 
 const TaskFormCard: React.FC = () => {
-  const { addTask, updateTask, editingTask, setEditingTask, setCurrentPage, showToast } = useTaskStore();
+  const { 
+    addTask, 
+    updateTask, 
+    editingTask, 
+    setEditingTask, 
+    setCurrentPage, 
+    showToast,
+    tags,
+    fetchTags,
+    tasks,
+    fetchTasks
+  } = useTaskStore();
   
   const [title, setTitle] = useState(editingTask?.title || '');
   const [description, setDescription] = useState(editingTask?.description || '');
   const [tag, setTag] = useState(editingTask?.tags?.[0]?.name || '');
   const [timeEstimation, setTimeEstimation] = useState(editingTask?.timeEstimation?.toString() || '');
+
+  useEffect(() => {
+    fetchTags();
+    fetchTasks();
+  }, [fetchTags, fetchTasks]);
+
+  const availableTags = useMemo(() => {
+    const activeTagNames = new Set(
+      tasks.flatMap(t => t.tags?.map(tag => tag.name.toLowerCase()) || [])
+    );
+    return tags.filter(t => activeTagNames.has(t.name.toLowerCase()));
+  }, [tasks, tags]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,6 +128,7 @@ const TaskFormCard: React.FC = () => {
         title,
         description,
         timeEstimation: parseInt(timeEstimation) || 0,
+        tags: tag ? [tag.toUpperCase()] : [],
       });
       setEditingTask(null);
       showToast('Quest Updated!');
@@ -143,23 +167,52 @@ const TaskFormCard: React.FC = () => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add some details about this quest..."
           />
-          <div className="grid grid-cols-2 gap-4">
-            <InputField
-              id="tag"
-              label="Tag"
-              value={tag}
-              onChange={(e) => setTag(e.target.value)}
-              placeholder="e.g. Code"
-            />
-            <InputField
-              id="time"
-              label="Time (min)"
-              value={timeEstimation}
-              onChange={(e) => setTimeEstimation(e.target.value)}
-              placeholder="30"
-              type="number"
-            />
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <InputField
+                id="tag"
+                label="Quest Tag"
+                value={tag}
+                onChange={(e) => setTag(e.target.value.toUpperCase())}
+                placeholder="New or Existing Tag"
+              />
+              <InputField
+                id="time"
+                label="Time (min)"
+                value={timeEstimation}
+                onChange={(e) => setTimeEstimation(e.target.value)}
+                placeholder="30"
+                type="number"
+              />
+            </div>
+
+            {/* Tag Selection Chips */}
+            {availableTags.length > 0 && (
+              <div className="flex flex-col space-y-2">
+                <span className="text-[10px] font-black text-[#7B7F97] uppercase tracking-widest px-1 opacity-60">
+                  Select Existing Objective
+                </span>
+                <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto no-scrollbar p-1">
+                  {availableTags.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTag(t.name.toUpperCase())}
+                      className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
+                        tag.toUpperCase() === t.name.toUpperCase()
+                          ? "bg-[#5B4DDB] text-white border-[#5B4DDB] shadow-md shadow-[#5B4DDB]/20"
+                          : "bg-[#F8F9FF] text-[#7B7F97] border-transparent hover:border-[#5B4DDB]/20"
+                      }`}
+                    >
+                      {t.name.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+
           <div className="pt-4">
             <SubmitButton label={editingTask ? "UPDATE QUEST" : "START QUEST"} />
           </div>

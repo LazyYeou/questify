@@ -48,55 +48,58 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full min-h-screen font-sans relative overflow-hidden">
-      <div className="relative z-10 w-full max-w-6xl mx-auto py-2 sm:py-6 px-2 sm:px-0">
+      <div className="relative z-10 w-full max-w-6xl mx-auto py-1 sm:py-4 px-2 sm:px-0">
         {/* --- TOP SECTION: Profile & Energy --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
           <ProfileCard user={user} />
           <StreakCard user={user} />
         </div>
 
         {/* --- ACTIVE MISSIONS SECTION --- */}
-        <div className="mb-12 relative">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-[#5B4DDB]">
-                <Target size={24} />
+        <div className="mb-8 relative">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-[#5B4DDB]">
+                <Target size={20} />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic">
+              <h2 className="text-xl sm:text-2xl font-black text-[#111827] uppercase tracking-tighter italic">
                 Active Quests
               </h2>
             </div>
 
-            {/* Filter Action Trigger */}
-            <button
-              onClick={openFilterMenu}
-              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border-2 ${
-                isFilterMenuOpen ||
-                activeFilter !== "all" ||
-                activeSort !== "none"
-                  ? "bg-[#5B4DDB] text-white border-[#5B4DDB] shadow-lg shadow-[#5B4DDB]/20"
-                  : "bg-white text-[#7B7F97] border-white hover:border-slate-100"
-              }`}
-            >
-              <Filter size={16} />
-              <span>Filter & Sort</span>
-              {(activeFilter !== "all" || activeSort !== "none") && (
-                <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              )}
-            </button>
-          </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {/* Add New Quest Button */}
+              <button 
+                onClick={() => {
+                  setEditingTask(null);
+                  setCurrentPage("create-task");
+                }}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#5B4DDB] to-[#7C6CFF] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md shadow-[#5B4DDB]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                <Plus size={14} strokeWidth={3} />
+                <span>Add Quest</span>
+              </button>
 
-          {/* New Rectangular Add Task Button */}
-          <button 
-            onClick={() => {
-              setEditingTask(null);
-              setCurrentPage("create-task");
-            }}
-            className="w-full mb-8 bg-gradient-to-r from-[#5B4DDB] to-[#7C6CFF] text-white py-4 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] shadow-lg shadow-[#5B4DDB]/25 hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-          >
-            <Plus size={18} strokeWidth={3} />
-            <span>Add New Quest</span>
-          </button>
+              {/* Filter Action Trigger */}
+              <button
+                onClick={openFilterMenu}
+                className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border-2 ${
+                  isFilterMenuOpen ||
+                  activeFilter !== "all" ||
+                  activeSort !== "none"
+                    ? "bg-[#5B4DDB] text-white border-[#5B4DDB] shadow-md shadow-[#5B4DDB]/20"
+                    : "bg-white text-[#7B7F97] border-white hover:border-slate-100"
+                }`}
+              >
+                <Filter size={14} />
+                <span className="hidden sm:inline">Filter & Sort</span>
+                <span className="sm:hidden">Filter</span>
+                {(activeFilter !== "all" || activeSort !== "none") && (
+                  <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                )}
+              </button>
+            </div>
+          </div>
 
           {/* Mission Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
