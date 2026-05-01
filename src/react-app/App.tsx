@@ -26,7 +26,14 @@ type Page =
   | "create-task";
 
 function App() {
-  const { activeTask, isModalOpen, currentPage, setCurrentPage, fetchUser, fetchTasks } = useTaskStore();
+  const {
+    activeTask,
+    isModalOpen,
+    currentPage,
+    setCurrentPage,
+    fetchUser,
+    fetchTasks,
+  } = useTaskStore();
 
   useEffect(() => {
     fetchUser();
@@ -72,9 +79,9 @@ function App() {
             setEditingTask(null);
             setCurrentPage("dashboard");
           }}
-          className="fixed top-6 left-6 z-50 text-gray-500 hover:text-[#5B4DDB] transition-colors text-sm font-black uppercase tracking-widest"
+          className="fixed top-6 left-6 z-50 bg-white text-[#7B7F97] hover:text-[#5B4DDB] px-5 py-2.5 rounded-2xl shadow-sm border border-slate-100 transition-all text-[10px] font-black uppercase tracking-widest hover:scale-[1.05] active:scale-[0.95]"
         >
-          ← Back to Dashboard
+          ← Dashboard
         </button>
       )}
 
@@ -82,7 +89,7 @@ function App() {
       <div className="max-w-6xl mx-auto pb-24">{renderPage()}</div>
 
       {/* Global Bottom Navigation */}
-      {currentPage !== 'create-task' && !isModalOpen && (
+      {currentPage !== "create-task" && !isModalOpen && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-lg px-2 z-50">
           <div className="bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] px-6 py-4 flex items-center justify-around border border-white/50 backdrop-blur-xl">
             <BottomItem
@@ -131,13 +138,21 @@ function Toast() {
 
   return (
     <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top-4 duration-300">
-      <div className={`px-6 py-3 rounded-2xl shadow-xl border-2 flex items-center gap-3 backdrop-blur-md ${
-        toast.type === 'success' ? 'bg-white/90 border-[#5B4DDB]/20 text-[#5B4DDB]' : 
-        toast.type === 'error' ? 'bg-white/90 border-rose-100 text-rose-500' : 
-        'bg-white/90 border-slate-100 text-slate-600'
-      }`}>
-        {toast.type === 'success' && <Sparkles size={18} className="animate-pulse" />}
-        <span className="font-black text-xs uppercase tracking-widest">{toast.message}</span>
+      <div
+        className={`px-6 py-3 rounded-2xl shadow-xl border-2 flex items-center gap-3 backdrop-blur-md ${
+          toast.type === "success"
+            ? "bg-white/90 border-[#5B4DDB]/20 text-[#5B4DDB]"
+            : toast.type === "error"
+              ? "bg-white/90 border-rose-100 text-rose-500"
+              : "bg-white/90 border-slate-100 text-slate-600"
+        }`}
+      >
+        {toast.type === "success" && (
+          <Sparkles size={18} className="animate-pulse" />
+        )}
+        <span className="font-black text-xs uppercase tracking-widest">
+          {toast.message}
+        </span>
       </div>
     </div>
   );

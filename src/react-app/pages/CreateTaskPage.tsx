@@ -83,8 +83,6 @@ const IconHeader: React.FC = () => (
     <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#D7CCFF] to-[#C7B9FF] flex items-center justify-center shadow-inner border-[8px] border-white overflow-hidden shrink-0">
       <ClipboardList className="w-10 h-10 text-[#5B4DDB]" />
     </div>
-    <Sparkles className="absolute -top-2 right-1/3 text-[#FFC84D] animate-pulse" size={24} />
-    <Sparkles className="absolute bottom-0 left-1/3 text-[#A68BFF]" size={20} />
   </div>
 );
 
@@ -246,9 +244,6 @@ const CreateTaskPage: React.FC = () => {
         }`}
       >
         <TaskFormCard />
-        
-        {/* Mascot decoration */}
-        <div className="mt-8 text-6xl opacity-20 pointer-events-none">🦊</div>
       </div>
     </div>
   );
