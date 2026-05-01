@@ -1,53 +1,59 @@
-import './App.css'
-import { TaskForm } from './components/TaskForm'
-import { TaskList } from './components/TaskList'
-import { UserProfile } from './components/UserProfile'
-import { PomodoroTimer } from './components/PomodoroTimer'
-import { useTaskStore } from './store/useTaskStore'
+import { useState } from "react";
+import "./App.css";
+import { PomodoroTimer } from "./components/PomodoroTimer";
+import { useTaskStore } from "./store/useTaskStore";
+import Dashboard from "./pages/Dashboard";
+import CreateTaskPage from "./pages/CreateTaskPage";
 
 function App() {
-  const { activeTask } = useTaskStore();
+  const { activeTask, clearActiveTask } = useTaskStore();
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'create-task'>('dashboard');
 
   if (activeTask) {
-    return <PomodoroTimer />;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <div className="p-4 bg-gray-900 text-white">
+          <button 
+            onClick={() => clearActiveTask()} 
+            className="text-sm font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors"
+          >
+            ← Cancel Quest
+          </button>
+        </div>
+        <div className="flex-1">
+          <PomodoroTimer />
+        </div>
+      </div>
+    );
+  }
+
+  if (currentPage === 'create-task') {
+    return (
+      <div className="relative">
+        <button 
+          onClick={() => setCurrentPage('dashboard')}
+          className="fixed top-6 left-6 z-50 text-gray-500 hover:text-white transition-colors text-sm font-medium"
+        >
+          ← Back to Dashboard
+        </button>
+        <CreateTaskPage />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6">
-      <div className="max-w-xl mx-auto">
-        <header className="text-center mb-10">
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic">
-            Questify
-          </h1>
-          <p className="text-slate-500 font-medium text-sm mt-1 uppercase tracking-widest">
-            Level up your productivity
-          </p>
-        </header>
-        
-        <UserProfile />
-        
-        <main className="space-y-12">
-          <section>
-            <TaskForm />
-          </section>
-
-          <section className="space-y-6">
-            <div className="flex items-center gap-4">
-              <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Active Quests</h2>
-              <div className="h-[1px] w-full bg-slate-200"></div>
-            </div>
-            <TaskList />
-          </section>
-        </main>
-
-        <footer className="mt-20 pt-10 border-t border-slate-200 text-center">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">
-            Built with Hono & React
-          </p>
-        </footer>
+    <div className="min-h-screen py-10 px-4 sm:px-6 bg-slate-50">
+      <div className="max-w-6xl mx-auto flex justify-end mb-8">
+        <button 
+          onClick={() => setCurrentPage('create-task')}
+          className="bg-[#5B4DDB] text-white px-8 py-3 rounded-full font-bold shadow-[0_10px_20px_rgba(91,77,219,0.3)] hover:bg-[#4a3cb5] hover:scale-105 transition-all duration-200"
+        >
+          + New Quest
+        </button>
       </div>
+      <Dashboard />
     </div>
-  )
+  );
 }
 
 export default App;
