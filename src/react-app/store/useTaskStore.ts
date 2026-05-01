@@ -29,14 +29,25 @@ export interface User {
   streak: number;
 }
 
+export type Page =
+  | "dashboard"
+  | "quests"
+  | "leaderboard"
+  | "shop"
+  | "profile"
+  | "create-task";
+
 interface TaskState {
   tasks: Task[];
   tags: Tag[];
   user: User | null;
   activeTask: Task | null;
+  editingTask: Task | null;
+  currentPage: Page;
   isModalOpen: boolean;
   isLoading: boolean;
   error: string | null;
+  toast: { message: string; type: 'success' | 'error' | 'info' } | null;
   
   fetchUser: () => Promise<void>;
   fetchTasks: () => Promise<void>;
@@ -46,7 +57,10 @@ interface TaskState {
   deleteTask: (id: number) => Promise<void>;
   setActiveTask: (task: Task) => void;
   clearActiveTask: () => void;
+  setEditingTask: (task: Task | null) => void;
+  setCurrentPage: (page: Page) => void;
   setIsModalOpen: (isOpen: boolean) => void;
+  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 export const useTaskStore = create<TaskState>((set, get) => ({
@@ -54,9 +68,12 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   tags: [],
   user: null,
   activeTask: null,
+  editingTask: null,
+  currentPage: "dashboard",
   isModalOpen: false,
   isLoading: false,
   error: null,
+  toast: null,
 
   fetchUser: async () => {
     try {
@@ -152,5 +169,13 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
   setActiveTask: (task) => set({ activeTask: task }),
   clearActiveTask: () => set({ activeTask: null }),
+  setEditingTask: (task) => set({ editingTask: task }),
+  setCurrentPage: (page) => set({ currentPage: page }),
   setIsModalOpen: (isOpen) => set({ isModalOpen: isOpen }),
+  showToast: (message, type = 'success') => {
+    set({ toast: { message, type } });
+    setTimeout(() => {
+      set({ toast: null });
+    }, 3000);
+  },
 }));

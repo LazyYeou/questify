@@ -14,6 +14,7 @@ import {
   Trophy,
   ShoppingCart,
   User,
+  Sparkles,
 } from "lucide-react";
 
 type Page =
@@ -25,8 +26,7 @@ type Page =
   | "create-task";
 
 function App() {
-  const { activeTask, isModalOpen, fetchUser, fetchTasks } = useTaskStore();
-  const [currentPage, setCurrentPage] = useState<Page>("dashboard");
+  const { activeTask, isModalOpen, currentPage, setCurrentPage, fetchUser, fetchTasks } = useTaskStore();
 
   useEffect(() => {
     fetchUser();
@@ -67,10 +67,14 @@ function App() {
       {/* Dynamic Back Button for Create Task */}
       {currentPage === "create-task" && (
         <button
-          onClick={() => setCurrentPage("quests")}
+          onClick={() => {
+            const { setEditingTask } = useTaskStore.getState();
+            setEditingTask(null);
+            setCurrentPage("dashboard");
+          }}
           className="fixed top-6 left-6 z-50 text-gray-500 hover:text-[#5B4DDB] transition-colors text-sm font-black uppercase tracking-widest"
         >
-          ← Back to Quests
+          ← Back to Dashboard
         </button>
       )}
 
@@ -114,6 +118,27 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Global Toast Notification */}
+      <Toast />
+    </div>
+  );
+}
+
+function Toast() {
+  const toast = useTaskStore((state) => state.toast);
+  if (!toast) return null;
+
+  return (
+    <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top-4 duration-300">
+      <div className={`px-6 py-3 rounded-2xl shadow-xl border-2 flex items-center gap-3 backdrop-blur-md ${
+        toast.type === 'success' ? 'bg-white/90 border-[#5B4DDB]/20 text-[#5B4DDB]' : 
+        toast.type === 'error' ? 'bg-white/90 border-rose-100 text-rose-500' : 
+        'bg-white/90 border-slate-100 text-slate-600'
+      }`}>
+        {toast.type === 'success' && <Sparkles size={18} className="animate-pulse" />}
+        <span className="font-black text-xs uppercase tracking-widest">{toast.message}</span>
+      </div>
     </div>
   );
 }

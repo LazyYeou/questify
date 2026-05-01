@@ -89,30 +89,36 @@ const IconHeader: React.FC = () => (
 );
 
 const TaskFormCard: React.FC = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [tag, setTag] = useState('');
-  const [timeEstimation, setTimeEstimation] = useState('');
+  const { addTask, updateTask, editingTask, setEditingTask, setCurrentPage, showToast } = useTaskStore();
   
-  const { addTask } = useTaskStore();
+  const [title, setTitle] = useState(editingTask?.title || '');
+  const [description, setDescription] = useState(editingTask?.description || '');
+  const [tag, setTag] = useState(editingTask?.tags?.[0]?.name || '');
+  const [timeEstimation, setTimeEstimation] = useState(editingTask?.timeEstimation?.toString() || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    await addTask({
-      title,
-      description,
-      timeEstimation: parseInt(timeEstimation) || 0,
-      tags: tag ? [tag] : [],
-    });
+    if (editingTask) {
+      await updateTask(editingTask.id, {
+        title,
+        description,
+        timeEstimation: parseInt(timeEstimation) || 0,
+      });
+      setEditingTask(null);
+      showToast('Quest Updated!');
+    } else {
+      await addTask({
+        title,
+        description,
+        timeEstimation: parseInt(timeEstimation) || 0,
+        tags: tag ? [tag] : [],
+      });
+      showToast('Quest Accepted!');
+    }
 
-    setTitle('');
-    setDescription('');
-    setTag('');
-    setTimeEstimation('');
-    
-    alert('Quest Accepted!');
+    setCurrentPage('dashboard');
   };
 
   return (
@@ -155,7 +161,7 @@ const TaskFormCard: React.FC = () => {
             />
           </div>
           <div className="pt-4">
-            <SubmitButton label="START QUEST" />
+            <SubmitButton label={editingTask ? "UPDATE QUEST" : "START QUEST"} />
           </div>
         </form>
       </div>
