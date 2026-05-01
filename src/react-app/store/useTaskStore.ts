@@ -34,6 +34,7 @@ interface TaskState {
   tags: Tag[];
   user: User | null;
   activeTask: Task | null;
+  isModalOpen: boolean;
   isLoading: boolean;
   error: string | null;
   
@@ -45,6 +46,7 @@ interface TaskState {
   deleteTask: (id: number) => Promise<void>;
   setActiveTask: (task: Task) => void;
   clearActiveTask: () => void;
+  setIsModalOpen: (isOpen: boolean) => void;
 }
 
 export const useTaskStore = create<TaskState>((set, get) => ({
@@ -52,6 +54,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   tags: [],
   user: null,
   activeTask: null,
+  isModalOpen: false,
   isLoading: false,
   error: null,
 
@@ -149,4 +152,5 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
   setActiveTask: (task) => set({ activeTask: task }),
   clearActiveTask: () => set({ activeTask: null }),
+  setIsModalOpen: (isOpen) => set({ isModalOpen: isOpen }),
 }));
