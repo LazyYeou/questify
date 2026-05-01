@@ -22,6 +22,27 @@
       "when": 1777150258389,
       "tag": "0002_unique_plazm",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1777657372860,
+      "tag": "0003_kind_shadowcat",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1777664217718,
+      "tag": "0004_third_calypso",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1777664705088,
+      "tag": "0005_wandering_korvac",
+      "breakpoints": true
     }
   ]
 }

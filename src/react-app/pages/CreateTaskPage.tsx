@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { ClipboardList, Sparkles, Target } from 'lucide-react';
 import { useTaskStore } from '../store/useTaskStore';
 
@@ -83,36 +83,64 @@ const IconHeader: React.FC = () => (
     <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#D7CCFF] to-[#C7B9FF] flex items-center justify-center shadow-inner border-[8px] border-white overflow-hidden shrink-0">
       <ClipboardList className="w-10 h-10 text-[#5B4DDB]" />
     </div>
-    <Sparkles className="absolute -top-2 right-1/3 text-[#FFC84D] animate-pulse" size={24} />
-    <Sparkles className="absolute bottom-0 left-1/3 text-[#A68BFF]" size={20} />
   </div>
 );
 
 const TaskFormCard: React.FC = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [tag, setTag] = useState('');
-  const [timeEstimation, setTimeEstimation] = useState('');
+  const { 
+    addTask, 
+    updateTask, 
+    editingTask, 
+    setEditingTask, 
+    setCurrentPage, 
+    showToast,
+    tags,
+    fetchTags,
+    tasks,
+    fetchTasks
+  } = useTaskStore();
   
-  const { addTask } = useTaskStore();
+  const [title, setTitle] = useState(editingTask?.title || '');
+  const [description, setDescription] = useState(editingTask?.description || '');
+  const [tag, setTag] = useState(editingTask?.tags?.[0]?.name || '');
+  const [timeEstimation, setTimeEstimation] = useState(editingTask?.timeEstimation?.toString() || '');
+
+  useEffect(() => {
+    fetchTags();
+    fetchTasks();
+  }, [fetchTags, fetchTasks]);
+
+  const availableTags = useMemo(() => {
+    const activeTagNames = new Set(
+      tasks.flatMap(t => t.tags?.map(tag => tag.name.toLowerCase()) || [])
+    );
+    return tags.filter(t => activeTagNames.has(t.name.toLowerCase()));
+  }, [tasks, tags]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    await addTask({
-      title,
-      description,
-      timeEstimation: parseInt(timeEstimation) || 0,
-      tags: tag ? [tag] : [],
-    });
+    if (editingTask) {
+      await updateTask(editingTask.id, {
+        title,
+        description,
+        timeEstimation: parseInt(timeEstimation) || 0,
+        tags: tag ? [tag.toUpperCase()] : [],
+      });
+      setEditingTask(null);
+      showToast('Quest Updated!');
+    } else {
+      await addTask({
+        title,
+        description,
+        timeEstimation: parseInt(timeEstimation) || 0,
+        tags: tag ? [tag] : [],
+      });
+      showToast('Quest Accepted!');
+    }
 
-    setTitle('');
-    setDescription('');
-    setTag('');
-    setTimeEstimation('');
-    
-    alert('Quest Accepted!');
+    setCurrentPage('dashboard');
   };
 
   return (
@@ -137,25 +165,54 @@ const TaskFormCard: React.FC = () => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add some details about this quest..."
           />
-          <div className="grid grid-cols-2 gap-4">
-            <InputField
-              id="tag"
-              label="Tag"
-              value={tag}
-              onChange={(e) => setTag(e.target.value)}
-              placeholder="e.g. Code"
-            />
-            <InputField
-              id="time"
-              label="Time (min)"
-              value={timeEstimation}
-              onChange={(e) => setTimeEstimation(e.target.value)}
-              placeholder="30"
-              type="number"
-            />
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <InputField
+                id="tag"
+                label="Quest Tag"
+                value={tag}
+                onChange={(e) => setTag(e.target.value.toUpperCase())}
+                placeholder="New or Existing Tag"
+              />
+              <InputField
+                id="time"
+                label="Time (min)"
+                value={timeEstimation}
+                onChange={(e) => setTimeEstimation(e.target.value)}
+                placeholder="30"
+                type="number"
+              />
+            </div>
+
+            {/* Tag Selection Chips */}
+            {availableTags.length > 0 && (
+              <div className="flex flex-col space-y-2">
+                <span className="text-[10px] font-black text-[#7B7F97] uppercase tracking-widest px-1 opacity-60">
+                  Select Existing Objective
+                </span>
+                <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto no-scrollbar p-1">
+                  {availableTags.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTag(t.name.toUpperCase())}
+                      className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
+                        tag.toUpperCase() === t.name.toUpperCase()
+                          ? "bg-[#5B4DDB] text-white border-[#5B4DDB] shadow-md shadow-[#5B4DDB]/20"
+                          : "bg-[#F8F9FF] text-[#7B7F97] border-transparent hover:border-[#5B4DDB]/20"
+                      }`}
+                    >
+                      {t.name.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+
           <div className="pt-4">
-            <SubmitButton label="START QUEST" />
+            <SubmitButton label={editingTask ? "UPDATE QUEST" : "START QUEST"} />
           </div>
         </form>
       </div>
@@ -187,9 +244,6 @@ const CreateTaskPage: React.FC = () => {
         }`}
       >
         <TaskFormCard />
-        
-        {/* Mascot decoration */}
-        <div className="mt-8 text-6xl opacity-20 pointer-events-none">🦊</div>
       </div>
     </div>
   );
