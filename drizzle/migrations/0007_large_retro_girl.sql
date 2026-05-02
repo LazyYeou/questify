@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `weekly_minutes` integer DEFAULT 0 NOT NULL;

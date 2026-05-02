@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { Trophy, Crown, User, Calendar, History } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Trophy, Crown, User, Calendar, History, Loader2 } from 'lucide-react';
+import { useTaskStore } from '../store/useTaskStore';
 
 interface LeaderboardEntry {
   id: string;
@@ -8,38 +9,51 @@ interface LeaderboardEntry {
   xp: number;
   minutesSpent: number;
   avatar: string;
-  isCurrentUser?: boolean;
+  rank: number;
 }
 
 type LeaderboardType = 'allTime' | 'weekly';
 
 const LeaderboardPage: React.FC = () => {
   const [activeType, setActiveType] = useState<LeaderboardType>('allTime');
+  const [data, setData] = useState<{ allTime: LeaderboardEntry[]; weekly: LeaderboardEntry[] } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const user = useTaskStore((state) => state.user);
 
-  const leaderboardData: LeaderboardEntry[] = [
-    { id: '1', name: "Alex P.", level: 12, xp: 4500, minutesSpent: 320, avatar: "🦊" },
-    { id: '2', name: "Emma S.", level: 11, xp: 3800, minutesSpent: 450, avatar: "🐼" },
-    { id: '3', name: "James W.", level: 10, xp: 3200, minutesSpent: 210, avatar: "🐱" },
-    { id: '4', name: "Sophia R.", level: 9, xp: 2950, minutesSpent: 280, avatar: "🦁" },
-    { id: '5', name: "Lucas M.", level: 8, xp: 2700, minutesSpent: 190, avatar: "🐻" },
-    { id: '6', name: "You (Hero)", level: 8, xp: 2550, minutesSpent: 310, avatar: "🐯", isCurrentUser: true },
-    { id: '7', name: "Olivia G.", level: 7, xp: 2200, minutesSpent: 150, avatar: "🐨" },
-    { id: '8', name: "Noah B.", level: 7, xp: 1950, minutesSpent: 120, avatar: "🐰" },
-    { id: '9', name: "Mia K.", level: 6, xp: 1700, minutesSpent: 90, avatar: "🐹" },
-    { id: '10', name: "Ethan H.", level: 6, xp: 1500, minutesSpent: 45, avatar: "🐭" },
-  ];
-
-  const sortedData = useMemo(() => {
-    return [...leaderboardData].sort((a, b) => {
-      if (activeType === 'allTime') {
-        return b.xp - a.xp;
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/leaderboard');
+        if (!response.ok) throw new Error('Failed to fetch leaderboard');
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      } finally {
+        setIsLoading(false);
       }
-      return b.minutesSpent - a.minutesSpent;
-    }).map((entry, index) => ({ ...entry, rank: index + 1 }));
-  }, [activeType, leaderboardData]);
+    };
 
-  const top3 = sortedData.slice(0, 3);
-  const others = sortedData.slice(3);
+    fetchLeaderboard();
+  }, []);
+
+  const activeData = useMemo(() => {
+    if (!data) return [];
+    return activeType === 'allTime' ? data.allTime : data.weekly;
+  }, [activeType, data]);
+
+  const top3 = activeData.slice(0, 3);
+  const others = activeData.slice(3);
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-[60vh] flex flex-col items-center justify-center gap-4 text-[#5B4DDB]">
+        <Loader2 className="w-12 h-12 animate-spin opacity-50" />
+        <p className="font-black text-xs uppercase tracking-[0.3em] opacity-50">Analyzing Hero Stats...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col gap-6 sm:gap-8 pb-32 animate-in fade-in duration-700">
@@ -95,32 +109,38 @@ const LeaderboardPage: React.FC = () => {
       {/* 2. TOP 3 PODIUM SECTION */}
       <div className="flex flex-row items-end justify-center gap-2 sm:gap-6 mt-4 sm:mt-8 px-1 sm:px-2">
         {/* Rank 2 */}
-        <PodiumCard 
-          entry={top3[1]} 
-          rank={2} 
-          highlightColor="silver" 
-          heightClass="h-[120px] sm:h-[240px]" 
-          type={activeType}
-        />
+        {top3[1] && (
+          <PodiumCard 
+            entry={top3[1]} 
+            rank={2} 
+            highlightColor="silver" 
+            heightClass="h-[120px] sm:h-[240px]" 
+            type={activeType}
+          />
+        )}
         
         {/* Rank 1 */}
-        <PodiumCard 
-          entry={top3[0]} 
-          rank={1} 
-          highlightColor="gold" 
-          heightClass="h-[150px] sm:h-[300px]" 
-          isWinner 
-          type={activeType}
-        />
+        {top3[0] && (
+          <PodiumCard 
+            entry={top3[0]} 
+            rank={1} 
+            highlightColor="gold" 
+            heightClass="h-[150px] sm:h-[300px]" 
+            isWinner 
+            type={activeType}
+          />
+        )}
         
         {/* Rank 3 */}
-        <PodiumCard 
-          entry={top3[2]} 
-          rank={3} 
-          highlightColor="bronze" 
-          heightClass="h-[100px] sm:h-[220px]" 
-          type={activeType}
-        />
+        {top3[2] && (
+          <PodiumCard 
+            entry={top3[2]} 
+            rank={3} 
+            highlightColor="bronze" 
+            heightClass="h-[100px] sm:h-[220px]" 
+            type={activeType}
+          />
+        )}
       </div>
 
       {/* 3. LEADERBOARD LIST CARD */}
@@ -137,8 +157,16 @@ const LeaderboardPage: React.FC = () => {
 
         <div className="space-y-1 sm:space-y-2">
           {others.map((entry) => (
-            <LeaderboardRow key={entry.id} entry={entry} type={activeType} />
+            <LeaderboardRow 
+              key={entry.id} 
+              entry={entry} 
+              type={activeType} 
+              isCurrentUser={user?.id.toString() === entry.id} 
+            />
           ))}
+          {activeData.length === 0 && (
+            <p className="text-[#7B7F97] font-bold text-center py-10 opacity-50">No hero data yet...</p>
+          )}
         </div>
       </div>
     </div>
@@ -207,7 +235,7 @@ const PodiumCard = ({
           <Crown className="absolute -top-6 sm:-top-10 text-[#F5B100] w-6 h-6 sm:w-10 sm:h-10 drop-shadow-lg" fill="currentColor" />
         )}
         <div className={`w-14 h-14 sm:w-24 sm:h-24 rounded-full bg-white p-1 sm:p-1.5 shadow-xl border-2 sm:border-4 ${c.border} z-10 transition-transform group-hover:scale-110 duration-500`}>
-          <div className="w-full h-full rounded-full bg-slate-50 flex items-center justify-center text-2xl sm:text-5xl select-none">
+          <div className="w-full h-full rounded-full bg-slate-50 flex items-center justify-center text-2xl sm:text-5xl select-none text-left">
             {entry.avatar}
           </div>
         </div>
@@ -220,15 +248,15 @@ const PodiumCard = ({
         <h3 className="font-black text-slate-900 text-[10px] sm:text-xl truncate w-full mb-0.5 sm:mb-1">
           {entry.name}
         </h3>
-        <p className={`${c.accent} font-black text-[7px] sm:text-[10px] uppercase tracking-widest mb-1.5 sm:mb-3`}>
+        <p className={`${c.accent} font-black text-[7px] sm:text-[10px] uppercase tracking-widest mb-1.5 sm:mb-3 text-left`}>
           Level {entry.level}
         </p>
         
         <div className="bg-white/50 backdrop-blur-sm px-2 py-1 sm:px-4 sm:py-2 rounded-lg sm:rounded-2xl border border-white/50 flex items-center gap-1 sm:gap-2">
-          <span className="font-black text-[#111827] text-[9px] sm:text-sm">
+          <span className="font-black text-[#111827] text-[9px] sm:text-sm whitespace-nowrap">
             {type === 'allTime' 
               ? `${entry.xp.toLocaleString()} XP` 
-              : `${entry.minutesSpent} min`}
+              : `${entry.minutesSpent.toLocaleString()} min`}
           </span>
         </div>
       </div>
@@ -236,15 +264,23 @@ const PodiumCard = ({
   );
 };
 
-const LeaderboardRow = ({ entry, type }: { entry: LeaderboardEntry & { rank: number }; type: LeaderboardType }) => {
+const LeaderboardRow = ({ 
+  entry, 
+  type, 
+  isCurrentUser 
+}: { 
+  entry: LeaderboardEntry; 
+  type: LeaderboardType; 
+  isCurrentUser: boolean;
+}) => {
   return (
     <div className={`group flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-2xl sm:rounded-3xl border transition-all duration-300 ${
-      entry.isCurrentUser 
+      isCurrentUser 
         ? "bg-gradient-to-r from-[#F1EEFF] to-white border-[#5B4DDB]/20 shadow-lg shadow-[#5B4DDB]/5 scale-[1.01] sm:scale-[1.02] z-10" 
         : "bg-white border-transparent hover:bg-slate-50 hover:border-slate-100"
     }`}>
       <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-sm ${
-        entry.isCurrentUser ? "bg-[#5B4DDB] text-white" : "bg-slate-50 text-[#7B7F97]"
+        isCurrentUser ? "bg-[#5B4DDB] text-white" : "bg-slate-50 text-[#7B7F97]"
       }`}>
         {entry.rank}
       </div>
@@ -254,11 +290,11 @@ const LeaderboardRow = ({ entry, type }: { entry: LeaderboardEntry & { rank: num
       </div>
 
       <div className="flex-1 min-w-0 text-left">
-        <h4 className={`font-black text-sm sm:text-base truncate ${entry.isCurrentUser ? "text-[#5B4DDB]" : "text-[#111827]"}`}>
+        <h4 className={`font-black text-sm sm:text-base truncate ${isCurrentUser ? "text-[#5B4DDB]" : "text-[#111827]"}`}>
           {entry.name}
-          {entry.isCurrentUser && <span className="ml-1.5 inline-block px-1.5 py-0.5 bg-[#5B4DDB]/10 text-[#5B4DDB] text-[7px] rounded-full uppercase tracking-tighter align-middle">You</span>}
+          {isCurrentUser && <span className="ml-1.5 inline-block px-1.5 py-0.5 bg-[#5B4DDB]/10 text-[#5B4DDB] text-[7px] rounded-full uppercase tracking-tighter align-middle">You</span>}
         </h4>
-        <p className="text-[#7B7F97] font-bold text-[8px] sm:text-[10px] uppercase tracking-widest">
+        <p className="text-[#7B7F97] font-bold text-[8px] sm:text-[10px] uppercase tracking-widest text-left">
           Lvl {entry.level}
         </p>
       </div>

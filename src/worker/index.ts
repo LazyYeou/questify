@@ -223,6 +223,7 @@ app.put("/api/tasks/:id", async (c) => {
       const newExp = user.experience + expReward;
       const newLevel = Math.floor(newExp / 100) + 1;
       const newCoins = user.coins + coinReward;
+      const newWeeklyMinutes = (user.weeklyMinutes || 0) + (updatedTaskRow.timeEstimation || 0);
       
       // Streak Logic
       let newStreak = user.streak;
@@ -250,6 +251,7 @@ app.put("/api/tasks/:id", async (c) => {
           experience: newExp,
           level: newLevel,
           coins: newCoins,
+          weeklyMinutes: newWeeklyMinutes,
           streak: newStreak,
           longestStreak: newLongestStreak,
           lastStreakAt: now.toISOString(),
@@ -286,4 +288,66 @@ app.get("/api/tags", async (c) => {
   return c.json(allTags);
 });
 
-export default app;
+// Leaderboard Endpoints
+app.get("/api/leaderboard", async (c) => {
+  const cache = c.env.cache;
+  const cachedData = await cache.get("leaderboard", "json");
+  
+  if (cachedData) {
+    return c.json(cachedData);
+  }
+
+  // Fallback if cache is empty
+  const data = await refreshLeaderboard(c.env.db);
+  await cache.put("leaderboard", JSON.stringify(data), { expirationTtl: 3600 });
+  return c.json(data);
+});
+
+async function refreshLeaderboard(d1: D1Database) {
+  const db = drizzle(d1);
+  const allUsers = await db.select().from(users).all();
+  
+  const allTime = [...allUsers]
+    .sort((a, b) => b.experience - a.experience)
+    .slice(0, 10)
+    .map((u, i) => ({
+      id: u.id.toString(),
+      name: u.name || "Unknown Hero",
+      level: u.level,
+      xp: u.experience,
+      minutesSpent: u.weeklyMinutes,
+      avatar: u.avatarUrl || "🦊",
+      rank: i + 1
+    }));
+
+  const weekly = [...allUsers]
+    .sort((a, b) => b.weeklyMinutes - a.weeklyMinutes)
+    .slice(0, 10)
+    .map((u, i) => ({
+      id: u.id.toString(),
+      name: u.name || "Unknown Hero",
+      level: u.level,
+      xp: u.experience,
+      minutesSpent: u.weeklyMinutes,
+      avatar: u.avatarUrl || "🦊",
+      rank: i + 1
+    }));
+
+  return { allTime, weekly };
+}
+
+export default {
+  fetch: app.fetch,
+  async scheduled(event: ScheduledEvent, env: Bindings) {
+    const db = drizzle(env.db);
+    
+    // 1. Weekly Reset check (Sunday 23:59)
+    if (event.cron === "59 23 * * 0") {
+      await db.update(users).set({ weeklyMinutes: 0 }).run();
+    }
+    
+    // 2. Hourly Refresh
+    const data = await refreshLeaderboard(env.db);
+    await env.cache.put("leaderboard", JSON.stringify(data), { expirationTtl: 3600 });
+  }
+};
