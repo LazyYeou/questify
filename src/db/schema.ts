@@ -32,6 +32,7 @@ export const tasks = sqliteTable("tasks", {
     .default("pending"),
   timeEstimation: integer("time_estimation").notNull().default(0),
   dueDate: text("due_date"),
+  icon: text("icon"),
   createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
   updatedAt: text("updated_at").$defaultFn(() => new Date().toISOString()),
 });

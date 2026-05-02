@@ -88,6 +88,16 @@ export function useDashboardState() {
     setGlobalModalOpen(false);
   };
 
+  const availableTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    tasks.filter(t => t.status !== 'completed').forEach((task) => {
+      task.tags?.forEach((tag) => {
+        if (tag.name) tagSet.add(tag.name);
+      });
+    });
+    return Array.from(tagSet).sort();
+  }, [tasks]);
+
   const processedTasks = useMemo(() => {
     let result = tasks.filter(task => task.status !== 'completed');
 
@@ -137,6 +147,7 @@ export function useDashboardState() {
     setCurrentPage,
     setEditingTask,
     setActiveFilter,
-    setActiveSort
+    setActiveSort,
+    availableTags
   };
 }

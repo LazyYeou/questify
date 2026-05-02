@@ -100,7 +100,7 @@ app.post("/api/tasks", async (c) => {
   const db = drizzle(c.env.db);
   const userId = c.get("userId");
   const body = await c.req.json();
-  const { title, description, timeEstimation, tags: tagNames } = body;
+  const { title, description, timeEstimation, tags: tagNames, icon, dueDate } = body;
 
   // 1. Insert Task
   const [newTask] = await db.insert(tasks).values({
@@ -109,6 +109,8 @@ app.post("/api/tasks", async (c) => {
     description,
     timeEstimation: timeEstimation || 0,
     status: "pending",
+    icon,
+    dueDate,
   }).returning();
 
   // 2. Handle Tags (Inline Creation)
@@ -143,7 +145,7 @@ app.put("/api/tasks/:id", async (c) => {
   const userId = c.get("userId");
   const id = parseInt(c.req.param("id"));
   const body = await c.req.json();
-  const { tags: tagNames, ...taskUpdates } = body;
+  const { tags: tagNames, icon, ...taskUpdates } = body;
   
   const currentTask = await db.select().from(tasks).where(and(eq(tasks.id, id), eq(tasks.userId, userId))).get();
   if (!currentTask) return c.json({ error: "Task not found" }, 404);
@@ -154,6 +156,7 @@ app.put("/api/tasks/:id", async (c) => {
   const [updatedTaskRow] = await db.update(tasks)
     .set({
       ...taskUpdates,
+      icon,
       updatedAt: new Date().toISOString(),
     })
     .where(and(eq(tasks.id, id), eq(tasks.userId, userId)))

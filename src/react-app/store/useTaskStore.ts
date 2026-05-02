@@ -11,6 +11,7 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   tags?: Tag[];
+  icon?: string;
 }
 
 export interface Tag {
@@ -55,7 +56,7 @@ interface TaskState {
   fetchUser: () => Promise<void>;
   fetchTasks: () => Promise<void>;
   fetchTags: () => Promise<void>;
-  addTask: (task: { title: string; description?: string; timeEstimation?: number; tags?: string[] }) => Promise<void>;
+  addTask: (task: { title: string; description?: string; timeEstimation?: number; tags?: string[]; dueDate?: string | null }) => Promise<void>;
   updateTask: (id: number, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: number) => Promise<void>;
   setActiveTask: (task: Task) => void;
