@@ -1,8 +1,8 @@
 import React from 'react';
-import { Filter, X, Code2, Sigma, Target, Calendar, Clock, Check } from 'lucide-react';
+import { Filter, X, Target, Calendar, Clock, Check } from 'lucide-react';
 
 export type SortOption = "none" | "deadline" | "duration";
-export type FilterTag = "all" | "code" | "math" | "study";
+export type FilterTag = string;
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ interface FilterModalProps {
   pendingSort: SortOption;
   setPendingSort: (sort: SortOption) => void;
   onApply: () => void;
+  availableTags?: string[];
 }
 
 export const FilterModal: React.FC<FilterModalProps> = ({
@@ -22,6 +23,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   pendingSort,
   setPendingSort,
   onApply,
+  availableTags = [],
 }) => {
   if (!isOpen) return null;
 
@@ -63,18 +65,15 @@ export const FilterModal: React.FC<FilterModalProps> = ({
               label="All Quests"
               onClick={() => setPendingFilter("all")}
             />
-            <FilterTagButton
-              active={pendingFilter === "code"}
-              label="Coding"
-              icon={<Code2 size={12} />}
-              onClick={() => setPendingFilter("code")}
-            />
-            <FilterTagButton
-              active={pendingFilter === "math"}
-              label="Mathematics"
-              icon={<Sigma size={12} />}
-              onClick={() => setPendingFilter("math")}
-            />
+            {availableTags.map((tag) => (
+              <FilterTagButton
+                key={tag}
+                active={pendingFilter === tag.toLowerCase()}
+                label={tag}
+                icon={<Target size={12} />}
+                onClick={() => setPendingFilter(tag.toLowerCase())}
+              />
+            ))}
           </div>
         </div>
 

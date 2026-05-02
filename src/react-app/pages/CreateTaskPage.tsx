@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { ClipboardList, Sparkles, Target } from 'lucide-react';
+import { ClipboardList, Target } from 'lucide-react';
 import { useTaskStore } from '../store/useTaskStore';
 
 // --- Sub-components styled to match Dashboard ---
@@ -104,6 +104,9 @@ const TaskFormCard: React.FC = () => {
   const [description, setDescription] = useState(editingTask?.description || '');
   const [tag, setTag] = useState(editingTask?.tags?.[0]?.name || '');
   const [timeEstimation, setTimeEstimation] = useState(editingTask?.timeEstimation?.toString() || '');
+  const [dueDate, setDueDate] = useState(
+    editingTask?.dueDate ? new Date(editingTask.dueDate).toISOString().split('T')[0] : ''
+  );
 
   useEffect(() => {
     fetchTags();
@@ -121,22 +124,20 @@ const TaskFormCard: React.FC = () => {
     e.preventDefault();
     if (!title.trim()) return;
 
+    const taskData = {
+      title,
+      description,
+      timeEstimation: parseInt(timeEstimation) || 0,
+      tags: tag ? [tag.toUpperCase()] : [],
+      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+    };
+
     if (editingTask) {
-      await updateTask(editingTask.id, {
-        title,
-        description,
-        timeEstimation: parseInt(timeEstimation) || 0,
-        tags: tag ? [tag.toUpperCase()] : [],
-      });
+      await updateTask(editingTask.id, taskData);
       setEditingTask(null);
       showToast('Quest Updated!');
     } else {
-      await addTask({
-        title,
-        description,
-        timeEstimation: parseInt(timeEstimation) || 0,
-        tags: tag ? [tag] : [],
-      });
+      await addTask(taskData);
       showToast('Quest Accepted!');
     }
 
@@ -184,6 +185,14 @@ const TaskFormCard: React.FC = () => {
                 type="number"
               />
             </div>
+
+            <InputField
+              id="deadline"
+              label="Deadline"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              type="date"
+            />
 
             {/* Tag Selection Chips */}
             {availableTags.length > 0 && (

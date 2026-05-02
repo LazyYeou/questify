@@ -43,7 +43,8 @@ export default function DashboardPage() {
     setCurrentPage,
     setEditingTask,
     setActiveFilter,
-    setActiveSort
+    setActiveSort,
+    availableTags
   } = useDashboardState();
 
   return (
@@ -158,6 +159,7 @@ export default function DashboardPage() {
         pendingSort={pendingSort}
         setPendingSort={setPendingSort}
         onApply={applyFilters}
+        availableTags={availableTags}
       />
 
       <StartQuestModal
