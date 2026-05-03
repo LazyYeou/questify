@@ -1,6 +1,7 @@
 import React from "react";
 import { User as UserIcon } from "lucide-react";
 import { User } from "../../store/useTaskStore";
+import defaultUserIcon from "../../assets/icon/user.png";
 
 interface ProfileCardProps {
   user: User | null;

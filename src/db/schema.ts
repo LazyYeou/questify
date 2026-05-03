@@ -16,6 +16,7 @@ export const users = sqliteTable("users", {
   streak: integer("streak").notNull().default(0),
   longestStreak: integer("longest_streak").notNull().default(0),
   coins: integer("coins").notNull().default(0),
+  weeklyMinutes: integer("weekly_minutes").notNull().default(0),
   lastStreakAt: text("last_streak_at"),
   createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
 });

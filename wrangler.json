@@ -31,7 +31,13 @@
 			"binding": "cache",
 			"id": "5c7e45efdc5843dab0b64fa5aebd7f36"
 		}
-	]
+	],
+	"triggers": {
+		"crons": [
+			"0 * * * *",
+			"59 23 * * 0"
+		]
+	}
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
