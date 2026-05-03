@@ -39,7 +39,8 @@ export type Page =
   | "leaderboard"
   | "shop"
   | "profile"
-  | "create-task";
+  | "create-task"
+  | "achievements";
 
 interface TaskState {
   tasks: Task[];

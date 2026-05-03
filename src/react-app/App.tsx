@@ -8,6 +8,7 @@ import DashboardPage from "./pages/DashboardPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import ShopPage from "./pages/ShopPage";
 import ProfilePage from "./pages/ProfilePage";
+import AchievementsPage from "./pages/AchievementsPage";
 import {
   LayoutDashboard,
   Target,
@@ -23,7 +24,8 @@ type Page =
   | "leaderboard"
   | "shop"
   | "profile"
-  | "create-task";
+  | "create-task"
+  | "achievements";
 
 function App() {
   const {
@@ -64,6 +66,8 @@ function App() {
         return <ProfilePage />;
       case "create-task":
         return <CreateTaskPage />;
+      case "achievements":
+        return <AchievementsPage />;
       default:
         return <DashboardPage />;
     }
@@ -71,17 +75,17 @@ function App() {
 
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 bg-[#F8F9FF] relative">
-      {/* Dynamic Back Button for Create Task */}
-      {currentPage === "create-task" && (
+      {/* Dynamic Back Button for Create Task and Achievements */}
+      {(currentPage === "create-task" || currentPage === "achievements") && (
         <button
           onClick={() => {
             const { setEditingTask } = useTaskStore.getState();
             setEditingTask(null);
-            setCurrentPage("dashboard");
+            setCurrentPage(currentPage === "achievements" ? "profile" : "dashboard");
           }}
           className="fixed top-6 left-6 z-50 bg-white text-[#7B7F97] hover:text-[#5B4DDB] px-5 py-2.5 rounded-2xl shadow-sm border border-slate-100 transition-all text-[10px] font-black uppercase tracking-widest hover:scale-[1.05] active:scale-[0.95]"
         >
-          ← Dashboard
+          ← {currentPage === "achievements" ? "Profile" : "Dashboard"}
         </button>
       )}
 
@@ -89,7 +93,7 @@ function App() {
       <div className="max-w-6xl mx-auto pb-24">{renderPage()}</div>
 
       {/* Global Bottom Navigation */}
-      {currentPage !== "create-task" && !isModalOpen && (
+      {currentPage !== "create-task" && currentPage !== "achievements" && !isModalOpen && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-lg px-2 z-50">
           <div className="bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] px-6 py-4 flex items-center justify-around border border-white/50 backdrop-blur-xl">
             <BottomItem
