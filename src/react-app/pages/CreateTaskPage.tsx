@@ -129,9 +129,15 @@ const TaskFormCard: React.FC = () => {
 
   const availableTags = useMemo(() => {
     const activeTagNames = new Set(
-      tasks.flatMap((t) => t.tags?.map((tag) => tag.name.toLowerCase()) || []),
+      tasks
+        .filter((t) => t.status !== "completed")
+        .flatMap((t) => t.tags?.map((tag) => tag.name.toLowerCase()) || []),
     );
-    return tags.filter((t) => activeTagNames.has(t.name.toLowerCase()));
+    return tags.filter(
+      (t) =>
+        activeTagNames.has(t.name.toLowerCase()) &&
+        !["completed", "amb"].includes(t.name.toLowerCase())
+    );
   }, [tasks, tags]);
 
   const handleSubmit = async (e: React.FormEvent) => {

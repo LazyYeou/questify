@@ -1,34 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Flame, Timer, Pause, Play, XCircle } from 'lucide-react';
+import { Sparkles, Flame, Pause, Play, XCircle } from 'lucide-react';
 import { useTaskStore } from '../store/useTaskStore';
+import sadMascot from '../assets/mascot/sad.png';
+import happyMascot from '../assets/mascot/happy.png';
 
 export const PomodoroTimer: React.FC = () => {
   const { activeTask, clearActiveTask, updateTask, user } = useTaskStore();
-  
-  if (!activeTask) return null;
 
-  const [secondsLeft, setSecondsLeft] = useState(activeTask.timeEstimation * 60);
+  const [secondsLeft, setSecondsLeft] = useState(
+    activeTask ? activeTask.timeEstimation * 60 : 0
+  );
   const [isActive, setIsActive] = useState(true);
   const [showCompletion, setShowCompletion] = useState(false);
   const [showAbortConfirm, setShowAbortConfirm] = useState(false);
 
   useEffect(() => {
     let interval: any = null;
-    
-    if (isActive && secondsLeft > 0) {
+
+    if (isActive && secondsLeft > 0 && activeTask) {
       interval = setInterval(() => {
         setSecondsLeft((prev) => prev - 1);
       }, 1000);
-    } else if (secondsLeft === 0 && !showCompletion) {
+    } else if (activeTask && secondsLeft === 0 && !showCompletion) {
       setIsActive(false);
       setShowCompletion(true);
     }
-    
+
     return () => clearInterval(interval);
-  }, [isActive, secondsLeft, showCompletion]);
+  }, [isActive, secondsLeft, showCompletion, activeTask]);
+
+  if (!activeTask) return null;
 
   const handleClaimRewards = async () => {
-    await updateTask(activeTask.id, { status: 'completed' });
+    await updateTask(activeTask.id, { status: "completed" });
     clearActiveTask();
   };
 
@@ -49,12 +53,12 @@ export const PomodoroTimer: React.FC = () => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Calculate circular progress
   const totalSeconds = activeTask.timeEstimation * 60;
-  const progress = ((totalSeconds - secondsLeft) / totalSeconds);
+  const progress = (totalSeconds - secondsLeft) / totalSeconds;
   const radius = 140;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - progress * circumference;
@@ -71,10 +75,7 @@ export const PomodoroTimer: React.FC = () => {
       <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
         {/* Header Section */}
         <div className="mb-6 flex flex-col items-center">
-          <span className="bg-[#F1EEFF] text-[#5B4DDB] px-5 py-2 rounded-full font-extrabold text-sm tracking-widest uppercase mb-4 shadow-sm">
-            Quest in Progress
-          </span>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-[#111827] text-center tracking-tight leading-tight max-w-md">
+          <h1 className="text-3xl sm:text-5xl font-black text-[#111827] text-center tracking-tighter uppercase leading-tight max-w-md drop-shadow-sm">
             {activeTask.title}
           </h1>
         </div>
@@ -82,8 +83,8 @@ export const PomodoroTimer: React.FC = () => {
         {/* Circular Timer Display */}
         <div className="relative flex items-center justify-center mb-10 group">
           {/* Outer Shadow Ring */}
-          <div className="absolute w-[340px] h-[340px] rounded-full bg-white shadow-[0_20px_50px_rgba(0,0,0,0.06)] border-[12px] border-white" />
-          
+          <div className="absolute w-[340px] h-[340px] rounded-full bg-white shadow-[0_20px_0_#f1f5f9] border-[8px] border-white" />
+
           {/* SVG Progress Circle */}
           <svg className="w-[320px] h-[320px] transform -rotate-90 relative z-10">
             {/* Background Track */}
@@ -91,7 +92,7 @@ export const PomodoroTimer: React.FC = () => {
               cx="160"
               cy="160"
               r={radius}
-              stroke="#ECEAF9"
+              stroke="#F1F5F9"
               strokeWidth="20"
               fill="transparent"
               className="transition-all duration-500"
@@ -105,123 +106,144 @@ export const PomodoroTimer: React.FC = () => {
               strokeWidth="20"
               fill="transparent"
               strokeDasharray={circumference}
-              style={{ strokeDashoffset, transition: 'stroke-dashoffset 1s linear' }}
+              style={{
+                strokeDashoffset,
+                transition: "stroke-dashoffset 1s linear",
+              }}
               strokeLinecap="round"
             />
             <defs>
-              <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <linearGradient
+                id="timerGradient"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="0%"
+              >
                 <stop offset="0%" stopColor="#5B4DDB" />
-                <stop offset="100%" stopColor="#7C6CFF" />
+                <stop offset="100%" stopColor="#FF6B6B" />
               </linearGradient>
             </defs>
           </svg>
 
           {/* Inner Content */}
           <div className="absolute flex flex-col items-center justify-center z-20">
-            <div className={`text-7xl font-black text-[#111827] tabular-nums tracking-tighter mb-1 transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}>
+            <div
+              className={`text-7xl font-black text-[#111827] tabular-nums tracking-tighter mb-1 transition-all duration-300 ${isActive ? "scale-110 drop-shadow-[0_4px_0_rgba(0,0,0,0.1)]" : "scale-100 opacity-60"}`}
+            >
               {formatTime(secondsLeft)}
             </div>
-            <div className="flex items-center gap-1.5 text-[#5B4DDB]">
-              <Flame className={`w-5 h-5 fill-current ${isActive ? 'animate-bounce' : ''}`} />
-              <span className="font-extrabold text-sm uppercase tracking-wider">Momentum</span>
+            <div
+              className={`flex items-center gap-1.5 transition-colors ${isActive ? "text-[#FF6B6B]" : "text-[#7B7F97]"}`}
+            >
+              <Flame
+                className={`w-5 h-5 fill-current ${isActive ? "animate-bounce" : ""}`}
+              />
+              <span className="font-black text-[10px] uppercase tracking-[0.2em]">
+                {isActive ? "On Fire" : "Paused"}
+              </span>
             </div>
           </div>
-
-          {/* Floating Sparkles around the circle */}
-          <Sparkles className="absolute -top-4 -right-4 text-[#FFC84D] animate-pulse" size={32} />
-          <Sparkles className="absolute -bottom-2 -left-6 text-[#A68BFF] opacity-60" size={24} />
         </div>
 
         {/* Action Controls */}
-        <div className="flex flex-col sm:flex-row gap-6 w-full max-w-sm">
-          <button 
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-md">
+          <button
             onClick={() => setIsActive(!isActive)}
-            className={`flex-1 flex items-center justify-center gap-3 py-5 rounded-[32px] font-extrabold text-xl transition-all duration-300 shadow-xl ${
-              isActive 
-                ? 'bg-white text-[#111827] hover:bg-gray-50 border-2 border-transparent' 
-                : 'bg-[#5B4DDB] text-white hover:bg-[#4a3cb5] shadow-[0_10px_25px_rgba(91,77,219,0.3)]'
+            className={`flex-1 flex items-center justify-center gap-3 py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] transition-all border-[4px] active:translate-y-1 active:shadow-none ${
+              isActive
+                ? "bg-white text-[#111827] hover:bg-slate-50 border-slate-100 shadow-[0_6px_0_#f1f5f9]"
+                : "bg-[#5B4DDB] text-white border-[#4539a5] shadow-[0_6px_0_#3730a3]"
             }`}
           >
-            {isActive ? <Pause className="fill-current w-6 h-6" /> : <Play className="fill-current w-6 h-6" />}
-            {isActive ? 'Pause' : 'Resume'}
+            {isActive ? (
+              <Pause className="fill-current w-5 h-5" />
+            ) : (
+              <Play className="fill-current w-5 h-5" />
+            )}
+            {isActive ? "Pause" : "Resume"}
           </button>
-          
-          <button 
+
+          <button
             onClick={handleGiveUp}
-            className="flex-1 flex items-center justify-center gap-3 py-5 bg-white text-[#7B7F97] border-2 border-dashed border-[#D8DAE5] rounded-[32px] font-bold text-lg hover:bg-[#FFEBEB] hover:text-[#DC2626] hover:border-[#DC2626]/20 transition-all duration-300"
+            className="flex-1 flex items-center justify-center gap-3 py-5 bg-white text-[#7B7F97] border-[4px] border-slate-100 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] shadow-[0_6px_0_#f1f5f9] hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 hover:shadow-[0_6px_0_#fecdd3] active:translate-y-1 active:shadow-none transition-all"
           >
-            <XCircle className="w-6 h-6" />
+            <XCircle className="w-5 h-5" />
             Abort
           </button>
         </div>
 
         {/* Reward Preview */}
-        <div className="mt-10 flex items-center gap-4 bg-white/60 px-6 py-3 rounded-2xl border border-white/60 shadow-sm">
-           <div className="flex items-center gap-1.5 text-[#F5B100] font-extrabold tracking-tight">
-             <Sparkles className="w-5 h-5" fill="currentColor" />
-             <span>+{activeTask.timeEstimation * 2} EXP</span>
-           </div>
-           <div className="w-[1px] h-4 bg-[#D8DAE5]" />
-           <div className="text-[#7B7F97] font-bold text-sm uppercase tracking-wider">Target Level Up!</div>
+        <div className="mt-10 flex items-center gap-4 bg-white px-6 py-4 rounded-[20px] border-[3px] border-slate-100 shadow-[0_4px_0_#f1f5f9]">
+          <div className="flex items-center gap-1.5 text-[#F5B100] font-black tracking-tight">
+            <Sparkles className="w-5 h-5" fill="currentColor" />
+            <span className="text-sm uppercase tracking-tighter">
+              +{activeTask.timeEstimation * 2} EXP
+            </span>
+          </div>
+          <div className="w-[2px] h-6 bg-slate-100" />
+          <div className="text-[#7B7F97] font-black text-[10px] uppercase tracking-[0.2em]">
+            Bounty Target
+          </div>
         </div>
       </div>
-
-      {/* Mascot decoration */}
-      <div className="absolute bottom-10 right-10 text-8xl opacity-10 pointer-events-none transform rotate-12">🦊</div>
-      <div className="absolute top-10 left-10 text-6xl opacity-10 pointer-events-none transform -rotate-12">🌲</div>
-
-      <style>{`
-        .grid-pattern {
-          background-image: 
-            linear-gradient(rgba(124,58,237,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(124,58,237,0.1) 1px, transparent 1px);
-          background-size: 40px 40px;
-        }
-      `}</style>
 
       {/* Completion Card Overlay */}
       {showCompletion && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#111827]/60 backdrop-blur-md animate-in fade-in duration-500" />
-          
-          <div className="relative w-full max-w-md bg-white rounded-[48px] p-8 sm:p-12 shadow-[0_30px_60px_rgba(0,0,0,0.2)] border border-white flex flex-col items-center text-center animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">
+          <div className="absolute inset-0 bg-[#0b0b0b]/60 backdrop-blur-md animate-in fade-in duration-500" />
+
+          <div className="relative w-full max-w-md bg-white rounded-[40px] p-8 sm:p-12 shadow-[0_16px_0_rgba(0,0,0,0.1)] border-[4px] border-white flex flex-col items-center text-center animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">
             {/* Success Icon */}
-            <div className="relative mb-8">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-[#FFB52E] to-[#FF9800] rounded-full flex items-center justify-center shadow-xl shadow-orange-200">
-                <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-white fill-current" />
-              </div>
-              <div className="absolute -top-2 -right-2 w-10 h-10 bg-[#5B4DDB] rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-                <Flame className="w-5 h-5 text-white fill-current" />
+            <div className="relative mb-8 transform -translate-y-4">
+              <div className="w-40 h-40 sm:w-48 sm:h-48 mx-auto relative">
+                <img src={happyMascot} alt="Happy Mascot" className="w-full h-full object-contain filter drop-shadow-xl" />
+                <Sparkles className="absolute -top-2 -right-4 text-[#F5B100] animate-pulse" size={32} fill="currentColor" />
+                <Sparkles className="absolute bottom-4 -left-4 text-[#5B4DDB] animate-pulse delay-75" size={24} fill="currentColor" />
               </div>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl font-black text-[#111827] mb-4 uppercase italic tracking-tighter">
-              Quest Complete!
+            <h2 className="text-3xl sm:text-5xl font-black text-[#111827] mb-2 uppercase italic tracking-tighter">
+              Mission
+              <br />
+              Complete!
             </h2>
-            <p className="text-[#7B7F97] font-bold mb-8 max-w-[280px]">
-              You've successfully finished <span className="text-[#5B4DDB]">"{activeTask.title}"</span>. Claim your rewards below!
+            <p className="text-[#7B7F97] font-bold mb-8 max-w-[280px] text-sm uppercase tracking-tight">
+              You've conquered{" "}
+              <span className="text-[#5B4DDB] font-black">
+                "{activeTask.title}"
+              </span>
+              . Claim your bounty!
             </p>
 
             {/* Rewards Grid */}
             <div className="grid grid-cols-2 gap-4 w-full mb-10">
-              <div className="bg-[#F1EEFF] rounded-[24px] p-5 border border-[#5B4DDB]/10 flex flex-col items-center">
-                <span className="text-2xl mb-1">✨</span>
-                <span className="text-[#7B7F97] text-[10px] font-black uppercase tracking-widest">Experience</span>
-                <span className="text-[#5B4DDB] text-xl font-black">+{activeTask.timeEstimation * 2} XP</span>
+              <div className="bg-slate-50 rounded-[24px] p-5 border-[3px] border-slate-100 shadow-inner flex flex-col items-center">
+                <span className="text-3xl mb-2 filter drop-shadow-sm">✨</span>
+                <span className="text-[#7B7F97] text-[9px] font-black uppercase tracking-[0.2em] mb-1">
+                  Experience
+                </span>
+                <span className="text-[#5B4DDB] text-xl font-black tracking-tighter">
+                  +{activeTask.timeEstimation * 2} XP
+                </span>
               </div>
-              <div className="bg-[#FFF4E6] rounded-[24px] p-5 border border-[#FF9800]/10 flex flex-col items-center">
-                <span className="text-2xl mb-1">💰</span>
-                <span className="text-[#7B7F97] text-[10px] font-black uppercase tracking-widest">Coins</span>
-                <span className="text-[#FF9800] text-xl font-black">+{activeTask.timeEstimation * 5}</span>
+              <div className="bg-slate-50 rounded-[24px] p-5 border-[3px] border-slate-100 shadow-inner flex flex-col items-center">
+                <span className="text-3xl mb-2 filter drop-shadow-sm">💰</span>
+                <span className="text-[#7B7F97] text-[9px] font-black uppercase tracking-[0.2em] mb-1">
+                  Coins
+                </span>
+                <span className="text-[#F5B100] text-xl font-black tracking-tighter">
+                  +{activeTask.timeEstimation * 5}
+                </span>
               </div>
             </div>
 
             <button
               onClick={handleClaimRewards}
-              className="w-full bg-[#111827] text-white py-5 rounded-[24px] font-black text-lg uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              className="w-full bg-[#5B4DDB] text-white py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-[#4539a5] shadow-[0_8px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_4px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 italic"
             >
-              <span>Claim Rewards</span>
-              <Sparkles className="w-5 h-5 text-[#FFB52E]" />
+              <Sparkles className="w-5 h-5 fill-current" />
+              <span>Claim Bounty</span>
             </button>
           </div>
         </div>
@@ -229,36 +251,40 @@ export const PomodoroTimer: React.FC = () => {
       {/* Abort Confirmation Modal */}
       {showAbortConfirm && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-rose-900/20 backdrop-blur-md animate-in fade-in duration-300"
+          <div
+            className="absolute inset-0 bg-[#0b0b0b]/60 backdrop-blur-md animate-in fade-in duration-300"
             onClick={cancelAbort}
           />
-          <div className="relative z-10 w-full max-w-[400px] bg-white rounded-[48px] shadow-[0_40px_100px_rgba(225,29,72,0.15)] border border-white p-10 animate-in fade-in zoom-in duration-300 text-center">
-            <div className="w-24 h-24 bg-rose-50 rounded-[32px] flex items-center justify-center text-5xl mx-auto mb-8 shadow-inner">
-               👋
+          <div className="relative z-10 w-full max-w-[400px] bg-white rounded-[40px] border-[4px] border-slate-100 shadow-[0_16px_0_rgba(0,0,0,0.1)] p-8 sm:p-10 animate-in fade-in zoom-in duration-300 text-center">
+            <div className="w-32 h-32 mx-auto mb-6 relative transform -translate-y-4">
+               <img src={sadMascot} alt="Sad Mascot" className="w-full h-full object-contain filter drop-shadow-xl" />
             </div>
-            
-            <h3 className="text-3xl font-black text-[#111827] uppercase tracking-tighter italic mb-4">
+
+            <h3 className="text-3xl font-black text-[#111827] uppercase tracking-tighter italic mb-4 leading-none">
               Abort Mission?
             </h3>
-            
-            <p className="text-[#7B7F97] font-bold mb-8 leading-relaxed">
-              Do you really want to quit <span className="text-rose-500 font-black">"{activeTask.title}"</span>? Your current progress will be lost!
+
+            <p className="text-[#7B7F97] font-bold mb-8 leading-relaxed text-sm">
+              Do you really want to retreat from{" "}
+              <span className="text-rose-500 font-black uppercase tracking-tight">
+                "{activeTask.title}"
+              </span>
+              ? Your momentum will be lost!
             </p>
 
             <div className="grid grid-cols-2 gap-4">
-               <button 
-                 onClick={cancelAbort}
-                 className="py-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] text-[#7B7F97] bg-slate-50 hover:bg-slate-100 transition-colors"
-               >
-                 Continue
-               </button>
-               <button 
-                 onClick={confirmAbort}
-                 className="py-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] text-white bg-gradient-to-r from-rose-500 to-rose-600 shadow-lg shadow-rose-500/25 hover:scale-[1.05] active:scale-[0.95] transition-all"
-               >
-                 Quit Quest
-               </button>
+              <button
+                onClick={cancelAbort}
+                className="py-4 rounded-[20px] font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[#7B7F97] bg-slate-50 border-[3px] border-slate-100 shadow-[0_4px_0_#f1f5f9] active:translate-y-1 active:shadow-none transition-all"
+              >
+                Hold Line
+              </button>
+              <button
+                onClick={confirmAbort}
+                className="py-4 rounded-[20px] font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white bg-rose-500 border-[3px] border-rose-600 shadow-[0_4px_0_#be123c] active:translate-y-1 active:shadow-none transition-all"
+              >
+                Retreat
+              </button>
             </div>
           </div>
         </div>

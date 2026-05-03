@@ -13,7 +13,8 @@ import {
 export default function DashboardPage() {
   const {
     user,
-    tasks,
+    activeTasks,
+    completedTasks,
     isLoading,
     activeFilter,
     activeSort,
@@ -40,6 +41,8 @@ export default function DashboardPage() {
     setActiveFilter,
     setActiveSort,
     availableTags,
+    toggleHistory,
+    isHistoryVisible,
   } = useDashboardState();
 
   return (
@@ -55,7 +58,7 @@ export default function DashboardPage() {
         <div className="w-full h-px bg-slate-700 mb-10 border-2 border-slate-300 rounded-2xl" />
 
         {/* --- ACTIVE MISSIONS SECTION --- */}
-        <div className="relative">
+        <div className="relative mb-16">
           <div className="flex flex-col items-center gap-8 mb-10">
             <div className="w-full max-w-2xl">
               <button className="w-full bg-[#5B4DDB] text-white px-10 py-5 sm:py-6 rounded-[32px] border-[4px] border-[#4539a5] shadow-[0_10px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all cursor-default group">
@@ -105,7 +108,7 @@ export default function DashboardPage() {
                   Syncing Quests...
                 </p>
               </div>
-            ) : tasks.length === 0 ? (
+            ) : activeTasks.length === 0 ? (
               <div className="col-span-full flex flex-col items-center justify-center py-24 bg-white rounded-[40px] border-[3px] border-slate-100 shadow-[0_8px_0_#f8fafc] text-center px-10">
                 <div className="w-24 h-24 bg-slate-50 rounded-[32px] flex items-center justify-center text-5xl mb-8 border-[3px] border-white shadow-inner">
                   📜
@@ -128,7 +131,7 @@ export default function DashboardPage() {
                 </button>
               </div>
             ) : (
-              tasks.map((task) => (
+              activeTasks.map((task) => (
                 <QuestCard
                   key={task.id}
                   task={task}
@@ -143,6 +146,30 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
+{/* --- COMPLETED MISSIONS SECTION --- */}
+{completedTasks && completedTasks.length > 0 && (
+  <div className="relative mt-10">
+    <div className="flex justify-center mb-8">
+      <button
+        onClick={toggleHistory}
+        className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#7B7F97] hover:text-[#5B4DDB] hover:border-[#5B4DDB]/30 border-[3px] border-slate-100 rounded-[20px] shadow-[0_4px_0_#f1f5f9] hover:shadow-[0_4px_0_#e0e7ff] active:translate-y-1 active:shadow-none transition-all font-black text-xs uppercase tracking-widest"
+      >
+        <span>{isHistoryVisible ? "Hide" : "Show"} History Log ({completedTasks.length})</span>
+      </button>
+    </div>
+
+    {isHistoryVisible && completedTasks && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 opacity-80 grayscale">
+        {completedTasks.map((task) => (
+          <div key={task.id} className="bg-white rounded-[20px] p-4 border border-slate-100 shadow-sm flex items-center justify-between">
+            <span className="font-bold text-[#111827] text-sm truncate">{task.title}</span>
+            <span className="text-[10px] font-black text-[#7B7F97] uppercase px-2 py-1 bg-slate-50 rounded-lg">Done</span>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)}
       </div>
 
       {/* --- MODALS --- */}
