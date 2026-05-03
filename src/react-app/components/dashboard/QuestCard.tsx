@@ -95,21 +95,21 @@ export const QuestCard: React.FC<QuestCardProps> = ({
       </div>
 
       <div className="flex-1 min-w-0 relative z-10 text-left">
-        <div className="flex items-center justify-between mb-0.5 sm:mb-1">
+        <div className="flex items-start justify-between gap-2 mb-1 sm:mb-1.5">
           <h3
-            className={`text-base sm:text-xl font-black uppercase tracking-tight leading-none truncate ${
+            className={`text-sm sm:text-xl font-black uppercase tracking-tight leading-tight line-clamp-2 ${
               isNearDeadline ? "text-rose-900" : "text-[#111827]"
             }`}
           >
             {task.title}
           </h3>
-          <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+          <div className="flex items-center gap-1 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onEditClick(task);
               }}
-              className="p-1.5 sm:p-2 text-[#7B7F97] hover:text-[#5B4DDB] transition-colors"
+              className="p-1 sm:p-2 text-[#7B7F97] hover:text-[#5B4DDB] transition-colors"
               title="Edit Quest"
             >
               <Pencil size={14} className="sm:w-4 sm:h-4" />
@@ -119,7 +119,7 @@ export const QuestCard: React.FC<QuestCardProps> = ({
                 e.stopPropagation();
                 onDeleteClick(task);
               }}
-              className="p-1.5 sm:p-2 text-[#7B7F97] hover:text-rose-500 transition-colors"
+              className="p-1 sm:p-2 text-[#7B7F97] hover:text-rose-500 transition-colors"
               title="Abandon Quest"
             >
               <Trash2 size={14} className="sm:w-4 sm:h-4" />

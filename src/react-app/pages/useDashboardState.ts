@@ -118,7 +118,7 @@ export function useDashboardState() {
         return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
       });
     } else if (activeSort === "duration") {
-      result.sort((a, b) => (b.timeEstimation || 0) - (a.timeEstimation || 0));
+      result.sort((a, b) => (a.timeEstimation || 0) - (b.timeEstimation || 0));
     }
 
     return result;

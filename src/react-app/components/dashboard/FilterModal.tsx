@@ -97,7 +97,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             />
             <SortOptionButton
               active={pendingSort === "duration"}
-              label="Mission Length"
+              label="Shortest Duration"
               icon={<Clock size={18} />}
               onClick={() => setPendingSort("duration")}
             />

@@ -75,10 +75,10 @@ export default function DashboardPage() {
                   setEditingTask(null);
                   setCurrentPage("create-task");
                 }}
-                className="flex-1 flex items-center justify-center gap-3 px-4 py-5 bg-[#5B4DDB] text-white rounded-[24px] font-black text-sm uppercase tracking-widest border-[3px] border-[#4539a5] shadow-[0_6px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_3px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all"
+                className="flex-1 flex items-center justify-center gap-3 px-3 py-3 bg-[#5B4DDB] text-white rounded-[24px] font-black text-sm uppercase tracking-widest border-[3px] border-[#4539a5] shadow-[0_6px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_3px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all"
               >
                 <Plus size={20} strokeWidth={4} />
-                <span>New Quest</span>
+                <span>New Task</span>
               </button>
 
               {/* Filter Action Trigger */}
@@ -146,30 +146,40 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
-{/* --- COMPLETED MISSIONS SECTION --- */}
-{completedTasks && completedTasks.length > 0 && (
-  <div className="relative mt-10">
-    <div className="flex justify-center mb-8">
-      <button
-        onClick={toggleHistory}
-        className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#7B7F97] hover:text-[#5B4DDB] hover:border-[#5B4DDB]/30 border-[3px] border-slate-100 rounded-[20px] shadow-[0_4px_0_#f1f5f9] hover:shadow-[0_4px_0_#e0e7ff] active:translate-y-1 active:shadow-none transition-all font-black text-xs uppercase tracking-widest"
-      >
-        <span>{isHistoryVisible ? "Hide" : "Show"} History Log ({completedTasks.length})</span>
-      </button>
-    </div>
+        {/* --- COMPLETED MISSIONS SECTION --- */}
+        {completedTasks && completedTasks.length > 0 && (
+          <div className="relative mt-10">
+            <div className="flex justify-center mb-8">
+              <button
+                onClick={toggleHistory}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#7B7F97] hover:text-[#5B4DDB] hover:border-[#5B4DDB]/30 border-[3px] border-slate-100 rounded-[20px] shadow-[0_4px_0_#f1f5f9] hover:shadow-[0_4px_0_#e0e7ff] active:translate-y-1 active:shadow-none transition-all font-black text-xs uppercase tracking-widest"
+              >
+                <span>
+                  {isHistoryVisible ? "Hide" : "Show"} History Log (
+                  {completedTasks.length})
+                </span>
+              </button>
+            </div>
 
-    {isHistoryVisible && completedTasks && (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 opacity-80 grayscale">
-        {completedTasks.map((task) => (
-          <div key={task.id} className="bg-white rounded-[20px] p-4 border border-slate-100 shadow-sm flex items-center justify-between">
-            <span className="font-bold text-[#111827] text-sm truncate">{task.title}</span>
-            <span className="text-[10px] font-black text-[#7B7F97] uppercase px-2 py-1 bg-slate-50 rounded-lg">Done</span>
+            {isHistoryVisible && completedTasks && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 opacity-80 grayscale">
+                {completedTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="bg-white rounded-[20px] p-4 border border-slate-100 shadow-sm flex items-center justify-between"
+                  >
+                    <span className="font-bold text-[#111827] text-sm truncate">
+                      {task.title}
+                    </span>
+                    <span className="text-[10px] font-black text-[#7B7F97] uppercase px-2 py-1 bg-slate-50 rounded-lg">
+                      Done
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        ))}
-      </div>
-    )}
-  </div>
-)}
+        )}
       </div>
 
       {/* --- MODALS --- */}
