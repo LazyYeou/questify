@@ -68,6 +68,10 @@ export function useDashboardState() {
     setGlobalModalOpen(false);
   };
 
+  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
+
+  const toggleHistory = () => setIsHistoryVisible(!isHistoryVisible);
+
   const handleDeleteClick = (task: Task) => {
     setDeletingTaskState(task);
     setIsDeleteModalOpen(true);
@@ -99,7 +103,7 @@ export function useDashboardState() {
   }, [tasks]);
 
   const processedTasks = useMemo(() => {
-    let result = tasks.filter(task => task.status !== 'completed');
+    let result = [...tasks];
 
     if (activeFilter !== "all") {
       result = result.filter((task) =>
@@ -114,15 +118,22 @@ export function useDashboardState() {
         return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
       });
     } else if (activeSort === "duration") {
-      result.sort((a, b) => (b.timeEstimation || 0) - (a.timeEstimation || 0));
+      result.sort((a, b) => (a.timeEstimation || 0) - (b.timeEstimation || 0));
     }
 
     return result;
   }, [tasks, activeFilter, activeSort]);
 
+  const activeTasks = useMemo(() => processedTasks.filter(t => t.status !== 'completed'), [processedTasks]);
+  const completedTasks = useMemo(() => processedTasks.filter(t => t.status === 'completed'), [processedTasks]);
+
   return {
     user,
     tasks: processedTasks,
+    activeTasks,
+    completedTasks,
+    isHistoryVisible,
+    toggleHistory,
     isLoading,
     activeFilter,
     activeSort,

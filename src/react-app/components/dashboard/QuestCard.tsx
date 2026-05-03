@@ -52,12 +52,10 @@ export const QuestCard: React.FC<QuestCardProps> = ({
   onEditClick,
   onDeleteClick,
 }) => {
-  // Use provided icon or stable random icon based on task ID
   const IconComponent = React.useMemo(() => {
     if (task.icon && ICON_MAP[task.icon.toLowerCase()]) {
       return ICON_MAP[task.icon.toLowerCase()];
     }
-    // Stable random selection
     const index = task.id % RANDOM_ICONS.length;
     return ICON_MAP[RANDOM_ICONS[index]];
   }, [task.id, task.icon]);
@@ -77,137 +75,108 @@ export const QuestCard: React.FC<QuestCardProps> = ({
   return (
     <div
       onClick={() => onTaskClick(task)}
-      className={`relative overflow-hidden cursor-pointer rounded-[32px] sm:rounded-[44px] p-5 sm:p-7 flex items-center gap-5 sm:gap-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(91,77,219,0.12)] hover:scale-[1.01] active:scale-[0.97] transition-all duration-500 group border ${
+      className={`relative overflow-hidden cursor-pointer rounded-[24px] sm:rounded-[40px] p-4 sm:p-6 flex items-center gap-4 sm:gap-7 border-[4px] transition-all duration-200 group active:translate-y-1 active:shadow-none hover:scale-[1.01] ${
         isNearDeadline
-          ? "border-rose-200 bg-rose-50/30 hover:border-rose-300"
-          : "bg-white border-slate-100/80 hover:border-[#5B4DDB]/30"
+          ? "bg-rose-50 border-rose-200 shadow-[0_10px_0_#fecdd3]"
+          : "bg-white border-slate-100 shadow-[0_10px_0_#f1f5f9] hover:border-[#5B4DDB]/30"
       }`}
     >
+      {/* 3D Block Effect for Icon */}
       <div
-        className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-500 ${
+        className={`w-14 h-14 sm:w-20 sm:h-20 rounded-[20px] sm:rounded-[32px] flex items-center justify-center text-white shrink-0 relative z-10 transition-transform border-[4px] ${
           isNearDeadline
-            ? "from-rose-500/[0.05] to-transparent opacity-100"
-            : "from-[#5B4DDB]/[0.03] to-transparent opacity-0 group-hover:opacity-100"
-        }`}
-      />
-
-      <div
-        className={`w-16 h-16 sm:w-20 sm:h-20 rounded-[22px] sm:rounded-[28px] flex items-center justify-center text-white shrink-0 shadow-lg relative z-10 group-hover:-rotate-3 transition-transform bg-gradient-to-tr ${
-          isNearDeadline
-            ? "from-rose-500 to-rose-400"
-            : "from-[#5B4DDB] to-[#7C6CFF]"
+            ? "bg-rose-500 border-rose-600 shadow-[0_6px_0_#be123c]"
+            : "bg-[#5B4DDB] border-[#4539a5] shadow-[0_6px_0_#3730a3]"
         }`}
       >
-        <IconComponent className="w-7 h-7 sm:w-10 sm:h-10" />
+        {/* Inner surface layer for block effect */}
+        <div className="absolute top-0 left-0 right-0 h-2 sm:h-3 bg-white/20 rounded-t-[16px] sm:rounded-t-[28px] pointer-events-none" />
+        <IconComponent className="w-6 h-6 sm:w-10 sm:h-10 relative z-10" />
       </div>
 
       <div className="flex-1 min-w-0 relative z-10 text-left">
-        <div className="flex items-center justify-between ">
+        <div className="flex items-start justify-between gap-2 mb-1 sm:mb-1.5">
           <h3
-            className={`text-m sm:text-2xl font-black truncate tracking-tight leading-[1.1] transition-colors ${
-              isNearDeadline
-                ? "text-rose-900 group-hover:text-rose-600"
-                : "text-[#111827] group-hover:text-[#5B4DDB]"
+            className={`text-sm sm:text-xl font-black uppercase tracking-tight leading-tight line-clamp-2 ${
+              isNearDeadline ? "text-rose-900" : "text-[#111827]"
             }`}
           >
             {task.title}
           </h3>
-          <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+          <div className="flex items-center gap-1 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onEditClick(task);
               }}
-              className={`p-3 sm:p-2 transition-colors ${
-                isNearDeadline
-                  ? "text-rose-400 hover:text-rose-600"
-                  : "text-[#7B7F97] hover:text-[#5B4DDB]"
-              }`}
+              className="p-1 sm:p-2 text-[#7B7F97] hover:text-[#5B4DDB] transition-colors"
               title="Edit Quest"
             >
-              <Pencil size={18} className="sm:w-4 sm:h-4" />
+              <Pencil size={14} className="sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onDeleteClick(task);
               }}
-              className={`p-3 sm:p-2 transition-colors ${
-                isNearDeadline
-                  ? "text-rose-400 hover:text-rose-700"
-                  : "text-[#7B7F97] hover:text-rose-500"
-              }`}
+              className="p-1 sm:p-2 text-[#7B7F97] hover:text-rose-500 transition-colors"
               title="Abandon Quest"
             >
-              <Trash2 size={18} className="sm:w-4 sm:h-4" />
+              <Trash2 size={14} className="sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
+
         {task.description && (
-          <p
-            className={`text-xs font-medium mb-3 line-clamp-1 opacity-80 ${
-              isNearDeadline ? "text-rose-600/80" : "text-[#7B7F97]"
-            }`}
-          >
+          <p className="text-[9px] sm:text-xs font-bold text-[#7B7F97] line-clamp-1 mb-2 sm:mb-3 uppercase tracking-wider opacity-70">
             {task.description}
           </p>
         )}
-        <div className="flex items-center gap-2 mb-4">
-          <p
-            className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest italic ${
-              isNearDeadline
-                ? "text-rose-600 animate-pulse"
-                : "text-[#7B7F97]/60"
-            }`}
-          >
-            {task.dueDate
-              ? `Deadline: ${new Date(task.dueDate).toLocaleDateString()}`
-              : "Open Quest"}
-          </p>
-          {isNearDeadline && (
-            <span className="flex h-2 w-2 rounded-full bg-rose-500 animate-ping" />
-          )}
-        </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-3">
           <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border ${
+            className={`flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl border-[2px] ${
               isNearDeadline
-                ? "bg-rose-100/50 border-rose-200"
-                : "bg-[#F8F9FF] border-slate-100"
+                ? "bg-rose-100 border-rose-200 text-rose-700"
+                : "bg-slate-50 border-slate-100 text-[#111827]"
             }`}
           >
             <Zap
-              className={`w-3.5 h-3.5 fill-current ${isNearDeadline ? "text-rose-500" : "text-[#5B4DDB]"}`}
+              className={`w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current ${isNearDeadline ? "text-rose-500" : "text-[#5B4DDB]"}`}
             />
-            <span
-              className={`font-extrabold text-[10px] sm:text-xs ${isNearDeadline ? "text-rose-900" : "text-[#111827]"}`}
-            >
+            <span className="font-black text-[9px] sm:text-xs uppercase tracking-tight">
               {task.timeEstimation}m
             </span>
           </div>
+
           <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border ${
+            className={`flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl border-[2px] ${
               isNearDeadline
-                ? "bg-rose-100/30 border-rose-200"
-                : "bg-[#FFF9E6] border-amber-100"
+                ? "bg-rose-100 border-rose-200 text-rose-600"
+                : "bg-[#FFF9E6] border-amber-100 text-amber-600"
             }`}
           >
             <Sparkles
-              className={`w-3.5 h-3.5 fill-current ${isNearDeadline ? "text-rose-400" : "text-[#F5B100]"}`}
+              className={`w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current ${isNearDeadline ? "text-rose-400" : "text-[#F5B100]"}`}
             />
-            <span
-              className={`font-black text-[10px] sm:text-xs ${isNearDeadline ? "text-rose-600" : "text-[#F5B100]"}`}
-            >
+            <span className="font-black text-[9px] sm:text-xs uppercase tracking-tight">
               +{task.timeEstimation * 2} XP
             </span>
           </div>
+
+          {task.dueDate && (
+            <div
+              className={`text-[8px] sm:text-[10px] font-black uppercase tracking-widest ${isNearDeadline ? "text-rose-600 animate-pulse" : "text-[#7B7F97] opacity-60"}`}
+            >
+              {new Date(task.dueDate).toLocaleDateString()}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="shrink-0 relative z-10 hidden sm:flex">
-        <div className="w-12 h-12 rounded-2xl bg-[#F1EEFF] flex items-center justify-center text-[#5B4DDB] group-hover:bg-[#5B4DDB] group-hover:text-white group-hover:rotate-12 transition-all duration-500 shadow-sm border border-white">
-          <ChevronRight size={24} />
+        <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-[#7B7F97] group-hover:bg-[#5B4DDB] group-hover:text-white transition-all duration-200 border-[3px] border-white shadow-sm">
+          <ChevronRight size={24} strokeWidth={3} />
         </div>
       </div>
     </div>
