@@ -1,27 +1,29 @@
-import React from 'react';
-import { Flame, Trophy } from 'lucide-react';
-import { User } from '../../store/useTaskStore';
+import React from "react";
+import { Flame, Trophy } from "lucide-react";
+import { User } from "../../store/useTaskStore";
 
 interface StreakCardProps {
   user: User | null;
 }
 
 export const StreakCard: React.FC<StreakCardProps> = ({ user }) => {
-  const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const days = ["S", "M", "T", "W", "T", "F", "S"];
   const today = new Date().getDay();
   const streak = user?.streak || 0;
-  
-  const lastStreakDate = user?.lastStreakAt ? new Date(user.lastStreakAt) : null;
-  const isTodayCompleted = lastStreakDate 
+
+  const lastStreakDate = user?.lastStreakAt
+    ? new Date(user.lastStreakAt)
+    : null;
+  const isTodayCompleted = lastStreakDate
     ? lastStreakDate.toDateString() === new Date().toDateString()
     : false;
 
   const weekStatus = days.map((_, index) => {
-    if (index > today) return 'future';
-    if (index === today) return isTodayCompleted ? 'active' : 'pending';
+    if (index > today) return "future";
+    if (index === today) return isTodayCompleted ? "active" : "pending";
     const daysAgo = today - index;
     const effectiveStreak = isTodayCompleted ? streak : streak + 1;
-    return effectiveStreak > daysAgo ? 'active' : 'missed';
+    return effectiveStreak > daysAgo ? "active" : "missed";
   });
 
   return (
@@ -39,8 +41,8 @@ export const StreakCard: React.FC<StreakCardProps> = ({ user }) => {
               Streak
             </h2>
           </div>
-          
-          <div className="flex items-center gap-1.5 bg-black/10 px-2 py-0.5 rounded-full border border-white/10">
+
+          <div className="flex items-center gap-1.5 bg-black/10 px-2 py-2 rounded-full border border-white/10">
             <Trophy className="w-2.5 h-2.5 text-white/90" />
             <span className="text-[8px] font-black uppercase tracking-widest">
               Best: {user?.longestStreak || 0}
@@ -60,7 +62,7 @@ export const StreakCard: React.FC<StreakCardProps> = ({ user }) => {
         <div className="grid grid-cols-7 gap-1">
           {days.map((day, index) => {
             const status = weekStatus[index];
-            const isActive = status === 'active';
+            const isActive = status === "active";
             const isToday = index === today;
 
             return (
@@ -70,15 +72,17 @@ export const StreakCard: React.FC<StreakCardProps> = ({ user }) => {
                     isActive
                       ? "bg-white border-white shadow-[0_2px_0_#ca652d]"
                       : isToday
-                      ? "bg-white/20 border-white/40 border-dashed"
-                      : "bg-black/10 border-white/5 opacity-40"
+                        ? "bg-white/20 border-white/40 border-dashed"
+                        : "bg-black/10 border-white/5 opacity-40"
                   }`}
                 >
                   <Flame
-                    className={`w-3 h-3 ${isActive ? "text-[#FF8A4C] fill-current" : "text-white/50"}`}
+                    className={`w-6 h-6 ${isActive ? "text-[#FF8A4C] fill-current" : "text-white/50"}`}
                   />
                 </div>
-                <span className={`text-[8px] font-black uppercase tracking-tighter ${isToday ? "opacity-100" : "opacity-40"}`}>
+                <span
+                  className={`text-[8px] font-black uppercase tracking-tighter ${isToday ? "opacity-100" : "opacity-40"}`}
+                >
                   {day}
                 </span>
               </div>

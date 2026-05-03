@@ -47,7 +47,7 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full min-h-screen bg-[#F8F9FF] font-sans relative overflow-x-hidden pb-32">
-      <div className="relative z-10 w-full max-w-6xl mx-auto sm:pt-8 px-4 sm:px-6">
+      <div className="relative z-10 w-full max-w-6xl mx-auto sm:pt-8 px-2 sm:px-6">
         {/* --- TOP SECTION: Profile & Streak --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-10">
           <ProfileCard user={user} />
@@ -63,7 +63,7 @@ export default function DashboardPage() {
             <div className="w-full max-w-2xl">
               <button className="w-full bg-[#5B4DDB] text-white px-10 py-5 sm:py-6 rounded-[32px] border-[4px] border-[#4539a5] shadow-[0_10px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all cursor-default group">
                 <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tighter italic leading-none group-hover:scale-105 transition-transform">
-                  Your Quest
+                  Your Tasks
                 </h2>
               </button>
             </div>
@@ -75,7 +75,7 @@ export default function DashboardPage() {
                   setEditingTask(null);
                   setCurrentPage("create-task");
                 }}
-                className="flex-1 flex items-center justify-center gap-3 px-3 py-3 bg-[#5B4DDB] text-white rounded-[24px] font-black text-sm uppercase tracking-widest border-[3px] border-[#4539a5] shadow-[0_6px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_3px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all"
+                className="flex-1 flex items-center justify-center gap-3 px-3 py-4 bg-[#5B4DDB] text-white rounded-[24px] font-black text-sm uppercase tracking-widest border-[3px] border-[#4539a5] shadow-[0_6px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_3px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all"
               >
                 <Plus size={20} strokeWidth={4} />
                 <span>New Task</span>
@@ -114,11 +114,11 @@ export default function DashboardPage() {
                   📜
                 </div>
                 <h3 className="text-3xl font-black text-[#111827] mb-3 uppercase tracking-tight">
-                  No Quests Found
+                  No Tasks Found
                 </h3>
                 <p className="text-[#7B7F97] font-bold max-w-sm mb-8 leading-relaxed">
-                  The mission board is empty. Adjust your filters or embark on a
-                  new adventure!
+                  The task board is empty. Adjust your filters or create a new
+                  task.
                 </p>
                 <button
                   onClick={() => {

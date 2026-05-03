@@ -34,12 +34,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
           className="w-full h-full object-cover"
           onError={(e) => {
             // If image fails, clear src to trigger the silhouette fallback below
-            (e.target as HTMLImageElement).style.display = 'none';
+            (e.target as HTMLImageElement).style.display = "none";
             const parent = (e.target as HTMLImageElement).parentElement;
             if (parent) {
-              const placeholder = document.createElement('div');
-              placeholder.className = "w-full h-full flex items-center justify-center bg-slate-200 text-slate-400";
-              placeholder.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="40%" height="40%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+              const placeholder = document.createElement("div");
+              placeholder.className =
+                "w-full h-full flex items-center justify-center bg-slate-200 text-slate-400";
+              placeholder.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="40%" height="40%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
               parent.appendChild(placeholder);
             }
           }}
@@ -80,7 +82,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
                 Experience
               </span>
               <span className="text-[#111827] font-black text-[10px] uppercase tracking-tight">
-                {currentExp % 100} / 100 XP
+                {currentExp % 100} / 100 EXP
               </span>
             </div>
             <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner border-[2px] border-white">

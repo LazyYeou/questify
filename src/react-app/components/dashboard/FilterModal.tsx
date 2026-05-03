@@ -1,5 +1,5 @@
-import React from 'react';
-import { Filter, X, Target, Calendar, Clock, Check } from 'lucide-react';
+import React from "react";
+import { Filter, X, Target, Calendar, Clock, Check } from "lucide-react";
 
 export type SortOption = "none" | "deadline" | "duration";
 export type FilterTag = string;
@@ -43,7 +43,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
               <Filter size={24} strokeWidth={3} />
             </div>
             <h3 className="font-black text-[#111827] uppercase tracking-tighter text-2xl italic">
-              Mission Control
+              Task Filters
             </h3>
           </div>
           <button
@@ -56,10 +56,10 @@ export const FilterModal: React.FC<FilterModalProps> = ({
 
         {/* Filter by Tag */}
         <div className="mb-10">
-          <p className="text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.25em] mb-5 px-1">
-            Target Objectives
+          <p className="text-[14px] font-black text-[#7B7F97] uppercase tracking-[0.25em] mb-5 px-1">
+            Task Tags
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-4 ">
             <FilterTagButton
               active={pendingFilter === "all"}
               label="All Quests"
@@ -70,7 +70,6 @@ export const FilterModal: React.FC<FilterModalProps> = ({
                 key={tag}
                 active={pendingFilter === tag.toLowerCase()}
                 label={tag}
-                icon={<Target size={14} strokeWidth={3} />}
                 onClick={() => setPendingFilter(tag.toLowerCase())}
               />
             ))}
@@ -79,8 +78,8 @@ export const FilterModal: React.FC<FilterModalProps> = ({
 
         {/* Sort by */}
         <div className="mb-10">
-          <p className="text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.25em] mb-5 px-1">
-            Priority Sorting
+          <p className="text-[14px] font-black text-[#7B7F97] uppercase tracking-[0.25em] mb-5 px-1">
+            Sort By
           </p>
           <div className="space-y-4">
             <SortOptionButton
@@ -106,9 +105,9 @@ export const FilterModal: React.FC<FilterModalProps> = ({
 
         <button
           onClick={onApply}
-          className="w-full bg-[#5B4DDB] text-white py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-[#4539a5] shadow-[0_8px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all italic"
+          className="w-full bg-[#5B4DDB] text-white py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-[#4539a5] shadow-[0_8px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all "
         >
-          Update Board
+          Update Filter
         </button>
       </div>
     </div>
@@ -119,12 +118,10 @@ function FilterTagButton({
   label,
   active,
   onClick,
-  icon,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
-  icon?: React.ReactNode;
 }) {
   return (
     <button
@@ -135,7 +132,6 @@ function FilterTagButton({
           : "bg-white text-[#7B7F97] border-slate-100 shadow-[0_6px_0_#f1f5f9] hover:border-slate-200"
       }`}
     >
-      {icon}
       {label}
     </button>
   );
@@ -167,7 +163,9 @@ function SortOptionButton({
         >
           {icon}
         </div>
-        <span className="font-black text-sm uppercase tracking-tight">{label}</span>
+        <span className="font-black text-sm uppercase tracking-tight">
+          {label}
+        </span>
       </div>
       {active && <Check size={20} strokeWidth={4} className="text-[#5B4DDB]" />}
     </button>

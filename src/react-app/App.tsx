@@ -90,7 +90,7 @@ function App() {
 
       {/* Global Bottom Navigation */}
       {currentPage !== "create-task" && !isModalOpen && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-lg px-2 z-50">
+        <div className="fixed bottom-3 left-1/2 -translate-x-1/2 w-full max-w-lg px-2 z-50">
           <div className="bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] px-6 py-4 flex items-center justify-around border border-white/50 backdrop-blur-xl">
             <BottomItem
               active={currentPage === "dashboard"}

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Sparkles, Flame, Pause, Play, XCircle } from 'lucide-react';
-import { useTaskStore } from '../store/useTaskStore';
-import sadMascot from '../assets/mascot/sad.png';
-import happyMascot from '../assets/mascot/happy.png';
+import React, { useState, useEffect } from "react";
+import { Sparkles, Flame, Pause, Play, XCircle } from "lucide-react";
+import { useTaskStore } from "../store/useTaskStore";
+import sadMascot from "../assets/mascot/sad.png";
+import happyMascot from "../assets/mascot/happy.png";
 
 export const PomodoroTimer: React.FC = () => {
   const { activeTask, clearActiveTask, updateTask, user } = useTaskStore();
 
   const [secondsLeft, setSecondsLeft] = useState(
-    activeTask ? activeTask.timeEstimation * 60 : 0
+    activeTask ? activeTask.timeEstimation * 60 : 0,
   );
   const [isActive, setIsActive] = useState(true);
   const [showCompletion, setShowCompletion] = useState(false);
@@ -140,7 +140,7 @@ export const PomodoroTimer: React.FC = () => {
                 className={`w-5 h-5 fill-current ${isActive ? "animate-bounce" : ""}`}
               />
               <span className="font-black text-[10px] uppercase tracking-[0.2em]">
-                {isActive ? "On Fire" : "Paused"}
+                {isActive ? "Focus" : "Paused"}
               </span>
             </div>
           </div>
@@ -169,12 +169,12 @@ export const PomodoroTimer: React.FC = () => {
             className="flex-1 flex items-center justify-center gap-3 py-5 bg-white text-[#7B7F97] border-[4px] border-slate-100 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] shadow-[0_6px_0_#f1f5f9] hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 hover:shadow-[0_6px_0_#fecdd3] active:translate-y-1 active:shadow-none transition-all"
           >
             <XCircle className="w-5 h-5" />
-            Abort
+            Give Up
           </button>
         </div>
 
         {/* Reward Preview */}
-        <div className="mt-10 flex items-center gap-4 bg-white px-6 py-4 rounded-[20px] border-[3px] border-slate-100 shadow-[0_4px_0_#f1f5f9]">
+        <div className="mt-5 flex items-center gap-4 bg-white px-6 py-4 rounded-[20px] border-[3px] border-slate-100 shadow-[0_4px_0_#f1f5f9]">
           <div className="flex items-center gap-1.5 text-[#F5B100] font-black tracking-tight">
             <Sparkles className="w-5 h-5" fill="currentColor" />
             <span className="text-sm uppercase tracking-tighter">
@@ -183,7 +183,7 @@ export const PomodoroTimer: React.FC = () => {
           </div>
           <div className="w-[2px] h-6 bg-slate-100" />
           <div className="text-[#7B7F97] font-black text-[10px] uppercase tracking-[0.2em]">
-            Bounty Target
+            Task Reward
           </div>
         </div>
       </div>
@@ -197,27 +197,37 @@ export const PomodoroTimer: React.FC = () => {
             {/* Success Icon */}
             <div className="relative mb-8 transform -translate-y-4">
               <div className="w-40 h-40 sm:w-48 sm:h-48 mx-auto relative">
-                <img src={happyMascot} alt="Happy Mascot" className="w-full h-full object-contain filter drop-shadow-xl" />
-                <Sparkles className="absolute -top-2 -right-4 text-[#F5B100] animate-pulse" size={32} fill="currentColor" />
-                <Sparkles className="absolute bottom-4 -left-4 text-[#5B4DDB] animate-pulse delay-75" size={24} fill="currentColor" />
+                <img
+                  src={happyMascot}
+                  alt="Happy Mascot"
+                  className="w-full h-full object-contain filter drop-shadow-xl"
+                />
+                <Sparkles
+                  className="absolute -top-2 -right-4 text-[#F5B100] animate-pulse"
+                  size={32}
+                  fill="currentColor"
+                />
+                <Sparkles
+                  className="absolute bottom-4 -left-4 text-[#5B4DDB] animate-pulse delay-75"
+                  size={24}
+                  fill="currentColor"
+                />
               </div>
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-black text-[#111827] mb-2 uppercase italic tracking-tighter">
-              Mission
-              <br />
-              Complete!
+              Task Complete!
             </h2>
             <p className="text-[#7B7F97] font-bold mb-8 max-w-[280px] text-sm uppercase tracking-tight">
-              You've conquered{" "}
+              You've done{" "}
               <span className="text-[#5B4DDB] font-black">
                 "{activeTask.title}"
               </span>
-              . Claim your bounty!
+              . Claim your reward!
             </p>
 
             {/* Rewards Grid */}
-            <div className="grid grid-cols-2 gap-4 w-full mb-10">
+            <div className="grid grid-cols-1 gap-4 w-full mb-10">
               <div className="bg-slate-50 rounded-[24px] p-5 border-[3px] border-slate-100 shadow-inner flex flex-col items-center">
                 <span className="text-3xl mb-2 filter drop-shadow-sm">✨</span>
                 <span className="text-[#7B7F97] text-[9px] font-black uppercase tracking-[0.2em] mb-1">
@@ -227,7 +237,7 @@ export const PomodoroTimer: React.FC = () => {
                   +{activeTask.timeEstimation * 2} XP
                 </span>
               </div>
-              <div className="bg-slate-50 rounded-[24px] p-5 border-[3px] border-slate-100 shadow-inner flex flex-col items-center">
+              {/* <div className="bg-slate-50 rounded-[24px] p-5 border-[3px] border-slate-100 shadow-inner flex flex-col items-center">
                 <span className="text-3xl mb-2 filter drop-shadow-sm">💰</span>
                 <span className="text-[#7B7F97] text-[9px] font-black uppercase tracking-[0.2em] mb-1">
                   Coins
@@ -235,7 +245,7 @@ export const PomodoroTimer: React.FC = () => {
                 <span className="text-[#F5B100] text-xl font-black tracking-tighter">
                   +{activeTask.timeEstimation * 5}
                 </span>
-              </div>
+              </div> */}
             </div>
 
             <button
@@ -243,7 +253,7 @@ export const PomodoroTimer: React.FC = () => {
               className="w-full bg-[#5B4DDB] text-white py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-[#4539a5] shadow-[0_8px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_4px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 italic"
             >
               <Sparkles className="w-5 h-5 fill-current" />
-              <span>Claim Bounty</span>
+              <span>Claim Reward</span>
             </button>
           </div>
         </div>
@@ -256,20 +266,25 @@ export const PomodoroTimer: React.FC = () => {
             onClick={cancelAbort}
           />
           <div className="relative z-10 w-full max-w-[400px] bg-white rounded-[40px] border-[4px] border-slate-100 shadow-[0_16px_0_rgba(0,0,0,0.1)] p-8 sm:p-10 animate-in fade-in zoom-in duration-300 text-center">
-            <div className="w-32 h-32 mx-auto mb-6 relative transform -translate-y-4">
-               <img src={sadMascot} alt="Sad Mascot" className="w-full h-full object-contain filter drop-shadow-xl" />
+            <div className="w-36 h-36 mx-auto mb-2 relative transform -translate-y-4">
+              <img
+                src={sadMascot}
+                alt="Sad Mascot"
+                className="w-full h-full object-contain filter drop-shadow-xl"
+              />
             </div>
 
             <h3 className="text-3xl font-black text-[#111827] uppercase tracking-tighter italic mb-4 leading-none">
-              Abort Mission?
+              Quit Task?
             </h3>
 
             <p className="text-[#7B7F97] font-bold mb-8 leading-relaxed text-sm">
-              Do you really want to retreat from{" "}
+              Do you really want to give up from{" "}
               <span className="text-rose-500 font-black uppercase tracking-tight">
                 "{activeTask.title}"
               </span>
-              ? Your momentum will be lost!
+              ? It's sad to see you lose all your progress. You can do it if you
+              keep trying!
             </p>
 
             <div className="grid grid-cols-2 gap-4">
@@ -277,13 +292,13 @@ export const PomodoroTimer: React.FC = () => {
                 onClick={cancelAbort}
                 className="py-4 rounded-[20px] font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[#7B7F97] bg-slate-50 border-[3px] border-slate-100 shadow-[0_4px_0_#f1f5f9] active:translate-y-1 active:shadow-none transition-all"
               >
-                Hold Line
+                Continue
               </button>
               <button
                 onClick={confirmAbort}
                 className="py-4 rounded-[20px] font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] text-white bg-rose-500 border-[3px] border-rose-600 shadow-[0_4px_0_#be123c] active:translate-y-1 active:shadow-none transition-all"
               >
-                Retreat
+                Quit
               </button>
             </div>
           </div>

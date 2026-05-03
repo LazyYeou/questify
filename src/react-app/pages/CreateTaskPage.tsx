@@ -136,7 +136,7 @@ const TaskFormCard: React.FC = () => {
     return tags.filter(
       (t) =>
         activeTagNames.has(t.name.toLowerCase()) &&
-        !["completed", "amb"].includes(t.name.toLowerCase())
+        !["completed", "amb"].includes(t.name.toLowerCase()),
     );
   }, [tasks, tags]);
 
@@ -166,16 +166,16 @@ const TaskFormCard: React.FC = () => {
 
   return (
     <div className="w-full max-w-2xl flex flex-col items-center">
-      <IconHeader title={editingTask ? "Update Mission" : "New Mission"} />
+      <IconHeader title={editingTask ? "Edit Task" : "New Task"} />
 
       <div className="w-full bg-white rounded-[32px] sm:rounded-[40px] p-6 sm:p-10 border-[3px] sm:border-4 border-slate-100 shadow-[0_8px_0_#f1f5f9] relative overflow-hidden">
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           <InputField
             id="title"
-            label="Quest Title"
+            label="Task Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="What is your mission?"
+            placeholder="What is your Task?"
           />
           <TextAreaField
             id="description"
@@ -190,17 +190,17 @@ const TaskFormCard: React.FC = () => {
               <div className="flex flex-col gap-3">
                 <InputField
                   id="tag"
-                  label="Quest Tag"
+                  label="Task Tag"
                   value={tag}
                   onChange={(e) => setTag(e.target.value.toUpperCase())}
                   placeholder="Tag Name"
                 />
-                
+
                 {/* Tag Selection Chips moved below input */}
                 {availableTags.length > 0 && (
                   <div className="flex flex-col space-y-2">
-                    <span className="text-[9px] font-black text-[#7B7F97] uppercase tracking-widest px-1 opacity-60">
-                      Suggestions
+                    <span className="text-[9px] font-black text-[#7B7F97] uppercase tracking-widest px-1 mb-2 opacity-60">
+                      Select from active tags
                     </span>
                     <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto no-scrollbar p-0.5">
                       {availableTags.map((t) => (
@@ -224,7 +224,7 @@ const TaskFormCard: React.FC = () => {
 
               <InputField
                 id="time"
-                label="Time (min)"
+                label="Time (minutes)"
                 value={timeEstimation}
                 onChange={(e) => setTimeEstimation(e.target.value)}
                 placeholder="30"
@@ -242,9 +242,7 @@ const TaskFormCard: React.FC = () => {
           </div>
 
           <div className="pt-4">
-            <SubmitButton
-              label={editingTask ? "UPDATE QUEST" : "START QUEST"}
-            />
+            <SubmitButton label={editingTask ? "UPDATE TASK" : "CREATE TASK"} />
           </div>
         </form>
       </div>
