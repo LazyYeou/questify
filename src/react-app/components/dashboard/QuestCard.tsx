@@ -75,18 +75,18 @@ export const QuestCard: React.FC<QuestCardProps> = ({
   return (
     <div
       onClick={() => onTaskClick(task)}
-      className={`relative overflow-hidden cursor-pointer rounded-[24px] sm:rounded-[40px] p-4 sm:p-7 flex items-center gap-4 sm:gap-7 border-[3px] sm:border-4 transition-all duration-200 group active:translate-y-1 active:shadow-none ${
+      className={`relative overflow-hidden cursor-pointer rounded-[24px] sm:rounded-[40px] p-4 sm:p-6 flex items-center gap-4 sm:gap-7 border-[4px] transition-all duration-200 group active:translate-y-1 active:shadow-none hover:scale-[1.01] ${
         isNearDeadline
-          ? "bg-rose-50 border-rose-200 shadow-[0_6px_0_#fecdd3]"
-          : "bg-white border-slate-100 shadow-[0_6px_0_#f1f5f9] hover:border-[#5B4DDB]/30"
+          ? "bg-rose-50 border-rose-200 shadow-[0_10px_0_#fecdd3]"
+          : "bg-white border-slate-100 shadow-[0_10px_0_#f1f5f9] hover:border-[#5B4DDB]/30"
       }`}
     >
       {/* 3D Block Effect for Icon */}
       <div
-        className={`w-14 h-14 sm:w-20 sm:h-20 rounded-[20px] sm:rounded-[32px] flex items-center justify-center text-white shrink-0 relative z-10 transition-transform border-[3px] sm:border-4 ${
+        className={`w-14 h-14 sm:w-20 sm:h-20 rounded-[20px] sm:rounded-[32px] flex items-center justify-center text-white shrink-0 relative z-10 transition-transform border-[4px] ${
           isNearDeadline
-            ? "bg-rose-500 border-rose-600 shadow-[0_4px_0_#be123c]"
-            : "bg-[#5B4DDB] border-[#4539a5] shadow-[0_4px_0_#3730a3]"
+            ? "bg-rose-500 border-rose-600 shadow-[0_6px_0_#be123c]"
+            : "bg-[#5B4DDB] border-[#4539a5] shadow-[0_6px_0_#3730a3]"
         }`}
       >
         {/* Inner surface layer for block effect */}

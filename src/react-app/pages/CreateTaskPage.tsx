@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { ClipboardList, Target } from 'lucide-react';
-import { useTaskStore } from '../store/useTaskStore';
+import React, { useEffect, useState, useMemo } from "react";
+import { ClipboardList, Target } from "lucide-react";
+import { useTaskStore } from "../store/useTaskStore";
 
 // --- Sub-components styled to match Dashboard ---
 
@@ -18,11 +18,14 @@ const InputField: React.FC<InputFieldProps> = ({
   value,
   onChange,
   placeholder,
-  type = 'text',
+  type = "text",
   id,
 }) => (
-  <div className="flex flex-col space-y-2">
-    <label htmlFor={id} className="text-[#5B4DDB] font-extrabold text-sm sm:text-base tracking-wide uppercase px-1">
+  <div className="flex flex-col space-y-1.5">
+    <label
+      htmlFor={id}
+      className="text-[#7B7F97] font-black text-[9px] sm:text-[10px] tracking-[0.2em] uppercase px-1"
+    >
       {label}
     </label>
     <input
@@ -31,7 +34,7 @@ const InputField: React.FC<InputFieldProps> = ({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full bg-[#F1EEFF] text-[#111827] border-2 border-transparent focus:border-[#5B4DDB]/20 focus:bg-white rounded-[20px] px-5 py-4 focus:outline-none transition-all duration-200 font-bold placeholder:text-[#7B7F97]/50"
+      className="w-full bg-slate-50 text-[#111827] text-sm border-[3px] border-slate-100 focus:border-[#5B4DDB]/20 focus:bg-white rounded-[18px] px-4 py-3.5 focus:outline-none transition-all duration-200 font-bold placeholder:text-[#7B7F97]/30 shadow-inner"
     />
   </div>
 );
@@ -51,10 +54,13 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   onChange,
   placeholder,
   id,
-  rows = 4,
+  rows = 3,
 }) => (
-  <div className="flex flex-col space-y-2">
-    <label htmlFor={id} className="text-[#5B4DDB] font-extrabold text-sm sm:text-base tracking-wide uppercase px-1">
+  <div className="flex flex-col space-y-1.5">
+    <label
+      htmlFor={id}
+      className="text-[#7B7F97] font-black text-[9px] sm:text-[10px] tracking-[0.2em] uppercase px-1"
+    >
       {label}
     </label>
     <textarea
@@ -63,7 +69,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
       onChange={onChange}
       placeholder={placeholder}
       rows={rows}
-      className="w-full bg-[#F1EEFF] text-[#111827] border-2 border-transparent focus:border-[#5B4DDB]/20 focus:bg-white rounded-[24px] px-5 py-4 focus:outline-none transition-all duration-200 font-bold placeholder:text-[#7B7F97]/50 resize-none"
+      className="w-full bg-slate-50 text-[#111827] text-sm border-[3px] border-slate-100 focus:border-[#5B4DDB]/20 focus:bg-white rounded-[20px] px-4 py-3.5 focus:outline-none transition-all duration-200 font-bold placeholder:text-[#7B7F97]/30 resize-none shadow-inner"
     />
   </div>
 );
@@ -71,41 +77,49 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
 const SubmitButton: React.FC<{ label: string }> = ({ label }) => (
   <button
     type="submit"
-    className="w-full bg-gradient-to-r from-[#5B4DDB] to-[#7C6CFF] text-white font-extrabold text-xl py-5 rounded-[28px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 mt-6 shadow-[0_10px_25px_rgba(91,77,219,0.3)] flex items-center justify-center gap-3"
+    className="w-full bg-[#5B4DDB] text-white font-black text-lg py-4 rounded-[28px] border-[4px] border-[#4539a5] shadow-[0_6px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_3px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all mt-4 flex items-center justify-center gap-3 uppercase tracking-tighter italic"
   >
-    <Target className="w-6 h-6" />
+    <Target className="w-6 h-6" strokeWidth={3} />
     {label}
   </button>
 );
 
-const IconHeader: React.FC = () => (
-  <div className="flex justify-center mb-8 relative">
-    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#D7CCFF] to-[#C7B9FF] flex items-center justify-center shadow-inner border-[8px] border-white overflow-hidden shrink-0">
-      <ClipboardList className="w-10 h-10 text-[#5B4DDB]" />
+const IconHeader: React.FC<{ title: string }> = ({ title }) => (
+  <div className="flex justify-center mb-8 w-full max-w-2xl">
+    <div className="w-full bg-[#5B4DDB] text-white px-8 py-5 sm:py-7 rounded-[28px] border-[4px] border-[#4539a5] shadow-[0_8px_0_#3730a3] text-center">
+      <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter italic leading-none">
+        {title}
+      </h2>
     </div>
   </div>
 );
 
 const TaskFormCard: React.FC = () => {
-  const { 
-    addTask, 
-    updateTask, 
-    editingTask, 
-    setEditingTask, 
-    setCurrentPage, 
+  const {
+    addTask,
+    updateTask,
+    editingTask,
+    setEditingTask,
+    setCurrentPage,
     showToast,
     tags,
     fetchTags,
     tasks,
-    fetchTasks
+    fetchTasks,
   } = useTaskStore();
-  
-  const [title, setTitle] = useState(editingTask?.title || '');
-  const [description, setDescription] = useState(editingTask?.description || '');
-  const [tag, setTag] = useState(editingTask?.tags?.[0]?.name || '');
-  const [timeEstimation, setTimeEstimation] = useState(editingTask?.timeEstimation?.toString() || '');
+
+  const [title, setTitle] = useState(editingTask?.title || "");
+  const [description, setDescription] = useState(
+    editingTask?.description || "",
+  );
+  const [tag, setTag] = useState(editingTask?.tags?.[0]?.name || "");
+  const [timeEstimation, setTimeEstimation] = useState(
+    editingTask?.timeEstimation?.toString() || "",
+  );
   const [dueDate, setDueDate] = useState(
-    editingTask?.dueDate ? new Date(editingTask.dueDate).toISOString().split('T')[0] : ''
+    editingTask?.dueDate
+      ? new Date(editingTask.dueDate).toISOString().split("T")[0]
+      : "",
   );
 
   useEffect(() => {
@@ -115,9 +129,9 @@ const TaskFormCard: React.FC = () => {
 
   const availableTags = useMemo(() => {
     const activeTagNames = new Set(
-      tasks.flatMap(t => t.tags?.map(tag => tag.name.toLowerCase()) || [])
+      tasks.flatMap((t) => t.tags?.map((tag) => tag.name.toLowerCase()) || []),
     );
-    return tags.filter(t => activeTagNames.has(t.name.toLowerCase()));
+    return tags.filter((t) => activeTagNames.has(t.name.toLowerCase()));
   }, [tasks, tags]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,22 +149,20 @@ const TaskFormCard: React.FC = () => {
     if (editingTask) {
       await updateTask(editingTask.id, taskData);
       setEditingTask(null);
-      showToast('Quest Updated!');
+      showToast("Quest Updated!");
     } else {
       await addTask(taskData);
-      showToast('Quest Accepted!');
+      showToast("Quest Accepted!");
     }
 
-    setCurrentPage('dashboard');
+    setCurrentPage("dashboard");
   };
 
   return (
-    <div className="w-full max-w-lg">
-      <IconHeader />
-      <div className="bg-white rounded-[40px] p-8 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-white relative overflow-hidden">
-        {/* Background Decoration */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#F1EEFF] rounded-full -mr-16 -mt-16 opacity-50" />
-        
+    <div className="w-full max-w-2xl flex flex-col items-center">
+      <IconHeader title={editingTask ? "Update Mission" : "New Mission"} />
+
+      <div className="w-full bg-white rounded-[32px] sm:rounded-[40px] p-6 sm:p-10 border-[3px] sm:border-4 border-slate-100 shadow-[0_8px_0_#f1f5f9] relative overflow-hidden">
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           <InputField
             id="title"
@@ -166,16 +178,44 @@ const TaskFormCard: React.FC = () => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add some details about this quest..."
           />
-          
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <InputField
-                id="tag"
-                label="Quest Tag"
-                value={tag}
-                onChange={(e) => setTag(e.target.value.toUpperCase())}
-                placeholder="New or Existing Tag"
-              />
+
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="flex flex-col gap-3">
+                <InputField
+                  id="tag"
+                  label="Quest Tag"
+                  value={tag}
+                  onChange={(e) => setTag(e.target.value.toUpperCase())}
+                  placeholder="Tag Name"
+                />
+                
+                {/* Tag Selection Chips moved below input */}
+                {availableTags.length > 0 && (
+                  <div className="flex flex-col space-y-2">
+                    <span className="text-[9px] font-black text-[#7B7F97] uppercase tracking-widest px-1 opacity-60">
+                      Suggestions
+                    </span>
+                    <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto no-scrollbar p-0.5">
+                      {availableTags.map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setTag(t.name.toUpperCase())}
+                          className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border-2 ${
+                            tag.toUpperCase() === t.name.toUpperCase()
+                              ? "bg-[#5B4DDB] text-white border-[#5B4DDB] shadow-[0_2px_0_#3730a3]"
+                              : "bg-slate-50 text-[#7B7F97] border-slate-100 hover:border-[#5B4DDB]/20"
+                          }`}
+                        >
+                          {t.name.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <InputField
                 id="time"
                 label="Time (min)"
@@ -193,35 +233,12 @@ const TaskFormCard: React.FC = () => {
               onChange={(e) => setDueDate(e.target.value)}
               type="date"
             />
-
-            {/* Tag Selection Chips */}
-            {availableTags.length > 0 && (
-              <div className="flex flex-col space-y-2">
-                <span className="text-[10px] font-black text-[#7B7F97] uppercase tracking-widest px-1 opacity-60">
-                  Select Existing Objective
-                </span>
-                <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto no-scrollbar p-1">
-                  {availableTags.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => setTag(t.name.toUpperCase())}
-                      className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
-                        tag.toUpperCase() === t.name.toUpperCase()
-                          ? "bg-[#5B4DDB] text-white border-[#5B4DDB] shadow-md shadow-[#5B4DDB]/20"
-                          : "bg-[#F8F9FF] text-[#7B7F97] border-transparent hover:border-[#5B4DDB]/20"
-                      }`}
-                    >
-                      {t.name.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="pt-4">
-            <SubmitButton label={editingTask ? "UPDATE QUEST" : "START QUEST"} />
+            <SubmitButton
+              label={editingTask ? "UPDATE QUEST" : "START QUEST"}
+            />
           </div>
         </form>
       </div>
@@ -242,14 +259,14 @@ const CreateTaskPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-[#F8F9FF] flex items-center justify-center p-6 font-sans relative overflow-hidden">
+    <div className="min-h-screen w-full bg-[#F8F9FF] flex items-center justify-center p-2 font-sans relative overflow-hidden">
       {/* Background blobs like Dashboard */}
       <div className="absolute top-[-100px] left-[-100px] w-64 h-64 bg-gradient-to-br from-[#D7CCFF] to-transparent rounded-full blur-3xl opacity-40" />
       <div className="absolute bottom-[-100px] right-[-100px] w-80 h-80 bg-gradient-to-tl from-[#B8F0F0] to-transparent rounded-full blur-3xl opacity-40" />
 
-      <div 
+      <div
         className={`w-full flex flex-col items-center transition-all duration-700 ease-out transform ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         }`}
       >
         <TaskFormCard />
