@@ -290,16 +290,9 @@ app.get("/api/tags", async (c) => {
 
 // Leaderboard Endpoints
 app.get("/api/leaderboard", async (c) => {
-  const cache = c.env.cache;
-  const cachedData = await cache.get("leaderboard", "json");
-  
-  if (cachedData) {
-    return c.json(cachedData);
-  }
-
-  // Fallback if cache is empty
+  // Force refresh for now to ensure cache doesn't serve old fox icons
   const data = await refreshLeaderboard(c.env.db);
-  await cache.put("leaderboard", JSON.stringify(data), { expirationTtl: 3600 });
+  await c.env.cache.put("leaderboard", JSON.stringify(data), { expirationTtl: 60 });
   return c.json(data);
 });
 
@@ -316,7 +309,7 @@ async function refreshLeaderboard(d1: D1Database) {
       level: u.level,
       xp: u.experience,
       minutesSpent: u.weeklyMinutes,
-      avatar: u.avatarUrl || "🦊",
+      avatar: (u.avatarUrl && u.avatarUrl !== "🦊") ? u.avatarUrl : "",
       rank: i + 1
     }));
 
@@ -329,7 +322,7 @@ async function refreshLeaderboard(d1: D1Database) {
       level: u.level,
       xp: u.experience,
       minutesSpent: u.weeklyMinutes,
-      avatar: u.avatarUrl || "🦊",
+      avatar: (u.avatarUrl && u.avatarUrl !== "🦊") ? u.avatarUrl : "",
       rank: i + 1
     }));
 

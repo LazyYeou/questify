@@ -1,7 +1,15 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Trophy, Crown, User, Calendar, History, Loader2 } from "lucide-react";
+import {
+  Crown,
+  Calendar,
+  History,
+  Loader2,
+  Star,
+  Sparkles,
+} from "lucide-react";
 import { useTaskStore } from "../store/useTaskStore";
 import leaderboardMascot from "../assets/mascot/leaderboard.png";
+import defaultUserIcon from "../assets/icon/user.png";
 
 interface LeaderboardEntry {
   id: string;
@@ -53,23 +61,35 @@ const LeaderboardPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="w-full h-[60vh] flex flex-col items-center justify-center gap-4 text-[#5B4DDB]">
-        <Loader2 className="w-12 h-12 animate-spin opacity-50" />
-        <p className="font-black text-xs uppercase tracking-[0.3em] opacity-50">
-          Analyzing Hero Stats...
+        <Loader2 className="w-10 h-10 animate-spin opacity-50" />
+        <p className="font-black text-[10px] uppercase tracking-[0.3em] opacity-50">
+          Loading Leaderboard...
         </p>
       </div>
     );
   }
 
   return (
-    <div className="w-full flex flex-col gap-6 sm:gap-8 pb-32 animate-in fade-in duration-700">
+    <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 sm:gap-8 pb-16 pt-0 sm:pt-6 px-3 sm:px-0 animate-in fade-in duration-500">
       {/* 1. TOP HERO BANNER */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#5B4DDB] via-[#7C6CFF] to-[#A094FF] rounded-[32px] sm:rounded-[48px] p-6 sm:p-12 shadow-[0_20px_50px_rgba(91,77,219,0.3)] border border-white/20 mb-4 sm:mb-6">
-        <div className="relative z-10 max-w-[200px] sm:max-w-md text-left">
-          <h1 className="text-3xl sm:text-6xl font-black text-white mb-2 sm:mb-4 tracking-tighter italic uppercase leading-none">
+      <div className="relative overflow-hidden bg-[#5B4DDB] rounded-[28px] sm:rounded-[40px] p-5 sm:p-10 border-[3px] sm:border-4 border-[#4539a5] shadow-[0_6px_0_#4539a5] mb-2 flex items-center justify-between min-h-[130px] sm:min-h-[160px]">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-[-20px] left-[-20px] w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+        {/* <Star className="absolute top-3 right-[45%] text-white/20 w-5 h-5 sm:w-8 sm:h-8 rotate-12 pointer-events-none" />
+        <Sparkles className="absolute bottom-4 left-[45%] text-white/20 w-6 h-6 sm:w-10 sm:h-10 -rotate-12 pointer-events-none" /> */}
+        <div className="absolute top-0 left-0 right-0 h-3 sm:h-5 opacity-40 rounded-t-[24px] sm:rounded-t-[36px] pointer-events-none" />
+
+        <div className="relative z-10 w-[60%] sm:w-[65%] flex flex-col justify-center">
+          {/* <div className="inline-flex items-center gap-1 sm:gap-1.5 mb-1.5 sm:mb-3 bg-white/20 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg sm:rounded-xl backdrop-blur-sm border border-white/20 w-max">
+            <Crown size={12} className="text-amber-300 sm:w-5 sm:h-5" />
+            <span className="text-[8px] sm:text-[11px] font-black text-white uppercase tracking-widest">
+              Leaderboard
+            </span>
+          </div> */}
+          <h1 className="text-2xl sm:text-5xl font-black text-white mb-1 sm:mb-2 uppercase tracking-tight leading-none drop-shadow-sm">
             {activeType === "allTime" ? "Hall of Fame" : "Time Keepers"}
           </h1>
-          <p className="text-white/90 text-xs sm:text-xl font-bold leading-tight">
+          <p className="text-white/90 text-[10px] sm:text-sm font-bold leading-tight max-w-[95%]">
             {activeType === "allTime"
               ? "Total EXP accumulated since the beginning."
               : "Total focus time recorded this week."}
@@ -77,44 +97,42 @@ const LeaderboardPage: React.FC = () => {
         </div>
 
         {/* Mascot Area */}
-        <div className="absolute right-[-20px] bottom-[-2px] sm:right-0 sm:bottom-0 flex flex-col items-center pointer-events-none">
-          <div className="relative">
-            <img
-              src={leaderboardMascot}
-              alt="Leaderboard Mascot"
-              className="w-40 h-40 sm:w-64 sm:h-64 object-contain drop-shadow-2xl -scale-x-100"
-            />
-          </div>
+        <div className="relative w-[80%] sm:w-[800%] flex justify-end pointer-events-none z-10">
+          <img
+            src={leaderboardMascot}
+            alt="Leaderboard Mascot"
+            className="w-35 h-35 sm:w-56 sm:h-56 object-contain drop-shadow-2xl -scale-x-100 absolute -right-2 sm:-right-8 -bottom-16 sm:-bottom-32"
+          />
         </div>
       </div>
 
       {/* TABS SELECTOR */}
-      <div className="flex justify-center -mt-4 relative z-20">
-        <div className="bg-white p-1.5 rounded-[28px] shadow-xl border border-slate-100 flex gap-1">
+      <div className="flex justify-center mt-2 relative z-20">
+        <div className="bg-white p-1.5 sm:p-2 rounded-full shadow-[0_4px_0_rgba(0,0,0,0.05)] border-[3px] sm:border-4 border-slate-100 flex gap-1 sm:gap-2">
           <TabButton
             active={activeType === "allTime"}
             onClick={() => setActiveType("allTime")}
-            icon={<History size={16} />}
+            icon={<History size={16} className="sm:w-5 sm:h-5" />}
             label="All Time"
           />
           <TabButton
             active={activeType === "weekly"}
             onClick={() => setActiveType("weekly")}
-            icon={<Calendar size={16} />}
+            icon={<Calendar size={16} className="sm:w-5 sm:h-5" />}
             label="Weekly"
           />
         </div>
       </div>
 
       {/* 2. TOP 3 PODIUM SECTION */}
-      <div className="flex flex-row items-end justify-center gap-2 sm:gap-6 mt-4 sm:mt-8 px-1 sm:px-2">
+      <div className="flex flex-row items-end justify-center gap-1.5 sm:gap-4 mt-4">
         {/* Rank 2 */}
         {top3[1] && (
           <PodiumCard
             entry={top3[1]}
             rank={2}
             highlightColor="silver"
-            heightClass="h-[120px] sm:h-[240px]"
+            heightClass="h-[90px] sm:h-[180px]"
             type={activeType}
           />
         )}
@@ -125,7 +143,7 @@ const LeaderboardPage: React.FC = () => {
             entry={top3[0]}
             rank={1}
             highlightColor="gold"
-            heightClass="h-[150px] sm:h-[300px]"
+            heightClass="h-[120px] sm:h-[220px]"
             isWinner
             type={activeType}
           />
@@ -137,30 +155,39 @@ const LeaderboardPage: React.FC = () => {
             entry={top3[2]}
             rank={3}
             highlightColor="bronze"
-            heightClass="h-[100px] sm:h-[220px]"
+            heightClass="h-[70px] sm:h-[140px]"
             type={activeType}
           />
         )}
       </div>
 
+      <div className="border-t-[3px] sm:border-t-4 border-slate-100 my-1 sm:my-2 rounded-full w-3/4 mx-auto"></div>
+
       {/* 3. LEADERBOARD LIST CARD */}
-      <div className="bg-white rounded-[32px] sm:rounded-[48px] p-4 sm:p-10 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-slate-100 mt-2 sm:mt-4 overflow-hidden">
-        <div className="space-y-1 sm:space-y-2">
-          {others.map((entry) => (
-            <LeaderboardRow
-              key={entry.id}
-              entry={entry}
-              type={activeType}
-              isCurrentUser={user?.id.toString() === entry.id}
-            />
-          ))}
-          {activeData.length === 0 && (
-            <p className="text-[#7B7F97] font-bold text-center py-10 opacity-50">
-              No hero data yet...
-            </p>
-          )}
-        </div>
+      <div className="flex flex-col gap-3 sm:gap-4">
+        {others.map((entry) => (
+          <LeaderboardRow
+            key={entry.id}
+            entry={entry}
+            type={activeType}
+            isCurrentUser={String(user?.id) === String(entry.id)}
+          />
+        ))}
+        {activeData.length === 0 && (
+          <div className="bg-white border-[3px] sm:border-4 border-slate-100 rounded-[24px] sm:rounded-[32px] p-6 text-center text-[#7B7F97] font-bold text-xs sm:text-base">
+            No hero data yet...
+          </div>
+        )}
       </div>
+      <style>{`
+        @keyframes crown-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        .animate-crown-float {
+          animation: crown-float 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };
@@ -178,16 +205,48 @@ const TabButton = ({
 }) => (
   <button
     onClick={onClick}
-    className={`flex items-center gap-2 px-6 py-3 rounded-[22px] font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all ${
+    className={`flex items-center justify-center gap-1.5 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all border-2 border-transparent ${
       active
-        ? "bg-[#5B4DDB] text-white shadow-lg shadow-[#5B4DDB]/25"
-        : "text-[#7B7F97] hover:bg-[#F1EEFF] hover:text-[#5B4DDB]"
+        ? "bg-[#5B4DDB] text-white shadow-md shadow-[#5B4DDB]/30"
+        : "text-[#7B7F97] hover:bg-slate-50 hover:text-[#111827]"
     }`}
   >
     {icon}
     <span>{label}</span>
   </button>
 );
+
+const Avatar = ({
+  avatar,
+  className,
+}: {
+  avatar: string;
+  className: string;
+}) => {
+  const isEmoji =
+    avatar &&
+    avatar !== "🦊" &&
+    !avatar.includes("/") &&
+    !avatar.includes(".") &&
+    avatar.length <= 4;
+
+  if (isEmoji) {
+    return <span className="truncate">{avatar}</span>;
+  }
+
+  const src = avatar && avatar !== "🦊" ? avatar : defaultUserIcon;
+
+  return (
+    <img
+      src={src}
+      alt="Avatar"
+      className={`${className} object-cover rounded-full`}
+      onError={(e) => {
+        (e.target as HTMLImageElement).src = defaultUserIcon;
+      }}
+    />
+  );
+};
 
 const PodiumCard = ({
   entry,
@@ -206,25 +265,25 @@ const PodiumCard = ({
 }) => {
   const colors = {
     gold: {
-      bg: "bg-gradient-to-b from-[#FFF9E6] to-[#FFF3CC]",
-      border: "border-[#F5B100]/20",
-      accent: "text-[#F5B100]",
-      shadow: "shadow-[#F5B100]/10",
-      rankBg: "bg-[#F5B100]",
+      bg: "bg-amber-300",
+      topBg: "bg-amber-100",
+      border: "border-amber-400",
+      text: "text-amber-800",
+      rankColor: "bg-amber-400 text-amber-900 border-amber-200",
     },
     silver: {
-      bg: "bg-gradient-to-b from-[#F3F1FF] to-[#E8E4FF]",
-      border: "border-[#5B4DDB]/20",
-      accent: "text-[#5B4DDB]",
-      shadow: "shadow-[#5B4DDB]/10",
-      rankBg: "bg-[#5B4DDB]",
+      bg: "bg-slate-300",
+      topBg: "bg-slate-100",
+      border: "border-slate-400",
+      text: "text-slate-800",
+      rankColor: "bg-slate-400 text-slate-900 border-slate-200",
     },
     bronze: {
-      bg: "bg-gradient-to-b from-[#FFF2EB] to-[#FFE5D6]",
-      border: "border-[#FF8A4C]/20",
-      accent: "text-[#FF8A4C]",
-      shadow: "shadow-[#FF8A4C]/10",
-      rankBg: "bg-[#FF8A4C]",
+      bg: "bg-orange-300",
+      topBg: "bg-orange-100",
+      border: "border-orange-400",
+      text: "text-orange-900",
+      rankColor: "bg-orange-400 text-orange-900 border-orange-200",
     },
   };
 
@@ -232,47 +291,55 @@ const PodiumCard = ({
 
   return (
     <div
-      className={`flex-1 w-full flex flex-col items-center justify-end group transition-all duration-500`}
+      className={`flex-1 min-w-0 flex flex-col items-center justify-end relative`}
     >
-      <div className="relative mb-2 sm:mb-4 flex flex-col items-center">
+      {/* Avatar Container */}
+      <div className="relative mb-2 sm:mb-3 flex flex-col items-center z-20 w-full px-1">
         {isWinner && (
           <Crown
-            className="absolute -top-6 sm:-top-10 text-[#F5B100] w-6 h-6 sm:w-10 sm:h-10 drop-shadow-lg"
+            className="absolute -top-6 sm:-top-10 text-amber-400 w-8 h-8 sm:w-10 sm:h-10 drop-shadow-md z-30 animate-crown-float"
             fill="currentColor"
           />
         )}
+
         <div
-          className={`w-14 h-14 sm:w-24 sm:h-24 rounded-full bg-white p-1 sm:p-1.5 shadow-xl border-2 sm:border-4 ${c.border} z-10 transition-transform group-hover:scale-110 duration-500`}
+          className={`w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-white flex items-center justify-center text-2xl sm:text-4xl shadow-[0_2px_0_rgba(0,0,0,0.05)] border-2 sm:border-4 ${c.border} relative shrink-0 mx-auto`}
         >
-          <div className="w-full h-full rounded-full bg-slate-50 flex items-center justify-center text-2xl sm:text-5xl select-none text-left">
-            {entry.avatar}
+          <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+            <Avatar avatar={entry.avatar} className="w-full h-full" />
           </div>
-        </div>
-        <div
-          className={`absolute -bottom-1 sm:-bottom-2 z-20 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full ${c.rankBg} text-white font-black text-[8px] sm:text-xs shadow-lg`}
-        >
-          #{rank}
+          {/* Rank Badge */}
+          <div
+            className={`absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-5 h-5 sm:w-8 sm:h-8 rounded-full ${c.rankColor} border font-black text-[9px] sm:text-sm flex items-center justify-center shadow-sm z-10`}
+          >
+            {rank}
+          </div>
         </div>
       </div>
 
+      {/* Podium Block */}
       <div
-        className={`${heightClass} w-full ${c.bg} ${c.border} border-2 rounded-t-[24px] sm:rounded-t-[40px] rounded-b-[12px] sm:rounded-b-[20px] p-2 sm:p-6 flex flex-col items-center justify-center text-center shadow-xl ${c.shadow} relative group-hover:translate-y-[-5px] transition-transform duration-500`}
+        className={`${heightClass} w-full ${c.bg} border-2 sm:border-4 ${c.border} rounded-t-[16px] sm:rounded-t-[20px] rounded-b-[8px] sm:rounded-b-[10px] relative overflow-hidden flex flex-col items-center justify-start pt-2 sm:pt-4 shadow-sm`}
       >
-        <h3 className="font-black text-slate-900 text-[10px] sm:text-xl truncate w-full mb-0.5 sm:mb-1">
-          {entry.name}
-        </h3>
-        <p
-          className={`${c.accent} font-black text-[7px] sm:text-[10px] uppercase tracking-widest mb-1.5 sm:mb-3 text-left`}
-        >
-          Level {entry.level}
-        </p>
+        {/* Lighter top "surface" of the block */}
+        <div
+          className={`absolute top-0 left-0 right-0 h-2.5 sm:h-4 ${c.topBg} border-b-2 sm:border-b-4 ${c.border} opacity-50`}
+        ></div>
 
-        <div className="bg-white/50 backdrop-blur-sm px-2 py-1 sm:px-4 sm:py-2 rounded-lg sm:rounded-2xl border border-white/50 flex items-center gap-1 sm:gap-2">
-          <span className="font-black text-[#111827] text-[9px] sm:text-sm whitespace-nowrap">
-            {type === "allTime"
-              ? `${entry.xp.toLocaleString()} XP`
-              : `${entry.minutesSpent.toLocaleString()} min`}
-          </span>
+        <div className="w-full px-1 flex flex-col items-center min-w-0 mt-0.5 sm:mt-2 z-10">
+          <h3
+            className={`font-black text-[9px] mt-2 sm:text-base truncate w-full text-center text-slate-900`}
+          >
+            {entry.name}
+          </h3>
+
+          <div className="mt-1 bg-white/60 px-1.5 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-xl border border-white/50 inline-flex items-center justify-center max-w-full">
+            <span
+              className={`font-black text-[8px] sm:text-sm ${c.text} truncate`}
+            >
+              {type === "allTime" ? `${entry.xp} XP` : `${entry.minutesSpent}m`}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -290,61 +357,60 @@ const LeaderboardRow = ({
 }) => {
   return (
     <div
-      className={`group flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-2xl sm:rounded-3xl border transition-all duration-300 ${
+      className={`group flex items-center gap-2 sm:gap-4 p-2.5 sm:p-5 rounded-[20px] sm:rounded-3xl border-2 sm:border-4 transition-all duration-200 ${
         isCurrentUser
-          ? "bg-gradient-to-r from-[#F1EEFF] to-white border-[#5B4DDB]/20 shadow-lg shadow-[#5B4DDB]/5 scale-[1.01] sm:scale-[1.02] z-10"
-          : "bg-white border-transparent hover:bg-slate-50 hover:border-slate-100"
+          ? "bg-amber-50 border-amber-200 shadow-[0_4px_0_rgba(251,191,36,0.3)] sm:shadow-[0_6px_0_rgba(251,191,36,0.3)] z-10"
+          : "bg-white border-slate-100 shadow-[0_3px_0_rgba(0,0,0,0.02)] sm:shadow-[0_6px_0_rgba(0,0,0,0.02)] active:translate-y-1 active:shadow-none"
       }`}
     >
       <div
-        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-sm ${
+        className={`w-7 h-7 sm:w-10 sm:h-10 rounded-[10px] sm:rounded-2xl flex items-center justify-center font-black text-[10px] sm:text-lg shrink-0 ${
           isCurrentUser
-            ? "bg-[#5B4DDB] text-white"
-            : "bg-slate-50 text-[#7B7F97]"
+            ? "bg-amber-400 text-white shadow-sm"
+            : "bg-slate-100 text-[#7B7F97]"
         }`}
       >
         {entry.rank}
       </div>
 
-      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#F8F9FF] flex items-center justify-center text-xl sm:text-2xl shadow-inner border border-white select-none shrink-0 text-left">
-        {entry.avatar}
+      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-slate-50 flex items-center justify-center text-xl sm:text-3xl shadow-inner border border-slate-200 select-none shrink-0 overflow-hidden">
+        <Avatar avatar={entry.avatar} className="w-full h-full" />
       </div>
 
-      <div className="flex-1 min-w-0 text-left">
+      <div className="flex-1 min-w-0 pr-1">
         <h4
-          className={`font-black text-sm sm:text-base truncate ${isCurrentUser ? "text-[#5B4DDB]" : "text-[#111827]"}`}
+          className={`font-black text-[13px] sm:text-lg truncate leading-tight ${isCurrentUser ? "text-amber-800" : "text-[#111827]"}`}
         >
           {entry.name}
-          {isCurrentUser && (
-            <span className="ml-1.5 inline-block px-1.5 py-0.5 bg-[#5B4DDB]/10 text-[#5B4DDB] text-[7px] rounded-full uppercase tracking-tighter align-middle">
-              You
-            </span>
-          )}
         </h4>
-        <p className="text-[#7B7F97] font-bold text-[8px] sm:text-[10px] uppercase tracking-widest text-left">
-          Lvl {entry.level}
+        <p className="text-[#7B7F97] font-bold text-[8px] sm:text-[10px] uppercase tracking-wider leading-none mt-0.5">
+          Level {entry.level}
         </p>
       </div>
 
-      <div className="text-right flex flex-col items-end">
-        <div className="flex items-center gap-1 bg-slate-50 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl border border-slate-100 group-hover:bg-white transition-colors min-w-[70px] sm:min-w-[100px] justify-center">
-          <span className="font-black text-[#111827] text-[10px] sm:text-sm whitespace-nowrap">
-            {type === "allTime" ? (
-              <>
-                {entry.xp.toLocaleString()}{" "}
-                <span className="text-[8px] sm:text-[10px] text-[#7B7F97] opacity-60 ml-0.5">
-                  XP
-                </span>
-              </>
-            ) : (
-              <>
-                {entry.minutesSpent.toLocaleString()}{" "}
-                <span className="text-[8px] sm:text-[10px] text-[#7B7F97] opacity-60 ml-0.5">
-                  min
-                </span>
-              </>
-            )}
-          </span>
+      <div className="text-right shrink-0">
+        <div
+          className={`px-2 py-1 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border sm:border-2 font-black flex items-center justify-center ${isCurrentUser ? "bg-amber-100 border-amber-200 text-amber-700" : "bg-slate-50 border-slate-100 text-[#111827]"}`}
+        >
+          {type === "allTime" ? (
+            <>
+              <span className="text-[10px] sm:text-base leading-none">
+                {entry.xp.toLocaleString()}
+              </span>
+              <span className="text-[7px] sm:text-[10px] opacity-60 ml-0.5 sm:ml-1 leading-none">
+                XP
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-[10px] sm:text-base leading-none">
+                {entry.minutesSpent.toLocaleString()}
+              </span>
+              <span className="text-[7px] sm:text-[10px] opacity-60 ml-0.5 sm:ml-1 leading-none">
+                m
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>
