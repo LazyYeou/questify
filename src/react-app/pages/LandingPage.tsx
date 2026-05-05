@@ -1,901 +1,421 @@
-import { useState, useEffect } from "react";
-
-const floatingOrbs = [
-  { size: 320, x: -80, y: -80, color: "#7C3AED", delay: 0 },
-  { size: 200, x: 70, y: 60, color: "#2563EB", delay: 1.5 },
-  { size: 150, x: 20, y: 80, color: "#059669", delay: 3 },
-];
-
-const features = [
-  {
-    icon: "⚔️",
-    title: "XP & Quest System",
-    desc: "Every task becomes a quest. Earn XP, level up, unlock badges — real-time dopamine hits for real work done.",
-    color: "#7C3AED",
-  },
-  {
-    icon: "⏱️",
-    title: "Focus Timer + Streaks",
-    desc: "Pomodoro sessions that reward consistency. Miss a day, lose your streak. Keep it, multiply your XP.",
-    color: "#2563EB",
-  },
-  {
-    icon: "🌳",
-    title: "Skill Tree Dashboard",
-    desc: "Visualize your mastery like an RPG map. Green nodes = conquered. Grey = waiting. Every topic, unlocked.",
-    color: "#059669",
-  },
-  {
-    icon: "👥",
-    title: "Guilds + Leaderboard",
-    desc: "Study in squads. Weekly guild challenges. Relative leaderboards so it's always competitive, never demoralizing.",
-    color: "#DC2626",
-  },
-  {
-    icon: "📋",
-    title: "Quest Board",
-    desc: "Drag-drop your tasks into Urgent / Important / Backlog. Start every day with your top 3 quests — crystal clear.",
-    color: "#D97706",
-  },
-];
-
-const stats = [
-  { value: "2×", label: "More tasks completed" },
-  { value: "87%", label: "Users maintain 7-day streak" },
-  { value: "40min", label: "Average daily focus time" },
-];
-
-export default function LandingPage() {
-  const [scrollY, setScrollY] = useState(0);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    setVisible(true);
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
+import mascotTile  from "../assets/mascot/mascot-tile.png";
+import mascotTile1 from "../assets/mascot/mascot-tile1.png";
+ 
+type Sprite = { src: string; pos: string };
+ 
+const S1: Record<string, Sprite> = {
+  trophy:  { src: mascotTile, pos: "0% 0%"      },
+  chest:   { src: mascotTile, pos: "50% 0%"     },
+  shop:    { src: mascotTile, pos: "100% 0%"    },
+  sad:     { src: mascotTile, pos: "0% 50%"     },
+  map:     { src: mascotTile, pos: "50% 50%"    },
+  jump:    { src: mascotTile, pos: "100% 50%"   },
+  quest:   { src: mascotTile, pos: "0% 100%"    },
+  compass: { src: mascotTile, pos: "50% 100%"   },
+  tea:     { src: mascotTile, pos: "100% 100%"  },
+};
+ 
+const S2: Record<string, Sprite> = {
+  bag:     { src: mascotTile1, pos: "0% 0%"     },
+  writing: { src: mascotTile1, pos: "50% 0%"    },
+  coin:    { src: mascotTile1, pos: "100% 0%"   },
+  think:   { src: mascotTile1, pos: "0% 50%"    },
+  sleep:   { src: mascotTile1, pos: "50% 50%"   },
+  stars:   { src: mascotTile1, pos: "100% 50%"  },
+  point:   { src: mascotTile1, pos: "0% 100%"   },
+  gem:     { src: mascotTile1, pos: "50% 100%"  },
+  tea2:    { src: mascotTile1, pos: "100% 100%" },
+};
+ 
+function Mascot({
+  sprite,
+  size = 64,
+  className = "",
+}: {
+  sprite: Sprite;
+  size?: number;
+  className?: string;
+}) {
   return (
     <div
+      className={className}
       style={{
-        fontFamily: "'Syne', 'Space Grotesk', sans-serif",
-        background: "#0A0A0F",
-        color: "#F0F0F5",
-        minHeight: "100vh",
-        overflowX: "hidden",
+        width: size,
+        height: size,
+        backgroundImage: `url(${sprite.src})`,
+        backgroundPosition: sprite.pos,
+        backgroundSize: "300% 300%",
+        backgroundRepeat: "no-repeat",
+        flexShrink: 0,
       }}
+    />
+  );
+}
+ 
+const stats = [
+  { val: "120K+", label: "Quests Taken" },
+  { val: "87%",   label: "Success Rate" },
+  { val: "4.9",   label: "App Rating"   },
+];
+ 
+const features = [
+  { sprite: S1.quest,   title: "Quest Board", desc: "Break down massive assignments into bite-sized side-quests.",   bg: "bg-[#eaddff4d]", border: "border-[#7c3aed]" },
+  { sprite: S2.writing, title: "Focus Timer", desc: "Enter the study dungeon with timers that reward your focus.",   bg: "bg-[#ffddb84d]", border: "border-[#fea619]" },
+  { sprite: S1.trophy,  title: "XP & Levels", desc: "Earn XP for every minute studied and level up your character.", bg: "bg-[#6ffbbe4d]", border: "border-[#007650]" },
+  { sprite: S2.stars,   title: "Skill Tree",  desc: "Master subjects to unlock new rewards and upgrades.",           bg: "bg-[#dee9fc]",   border: "border-[#7b7487]" },
+];
+ 
+const steps = [
+  { n: "01", sprite: S1.quest,   title: "Pick a Quest",  desc: "Add a task, set XP, choose a deadline." },
+  { n: "02", sprite: S2.writing, title: "Focus & Study", desc: "25-min Pomodoro. Your fox cheers you on." },
+  { n: "03", sprite: S1.trophy,  title: "Earn XP",       desc: "Finish sessions, grow your streak." },
+  { n: "04", sprite: S2.gem,     title: "Level Up",      desc: "Unlock badges, climb the leaderboard." },
+];
+ 
+const proofItems = [
+  { icon: "task_alt",      val: "2× Tasks",   label: "Per Session",    color: "text-amber-400"   },
+  { icon: "rocket_launch", val: "Focus Mode", label: "Active Rewards", color: "text-emerald-400" },
+  { icon: "military_tech", val: "Top 1%",     label: "Student Growth", color: "text-violet-400"  },
+];
+ 
+// ─── FIX 1: onStart prop — connects to App.tsx setCurrentPage ──
+export default function LandingPage({ onStart }: { onStart?: () => void }) {
+  return (
+    <div
+      className="bg-[#f8f9ff] text-[#121c2a] overflow-x-hidden"
+      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #0A0A0F; }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33% { transform: translateY(-20px) rotate(2deg); }
-          66% { transform: translateY(10px) rotate(-1deg); }
-        }
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(40px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pulse-ring {
-          0% { transform: scale(1); opacity: 0.6; }
-          100% { transform: scale(1.4); opacity: 0; }
-        }
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        @keyframes scanline {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100vh); }
-        }
-
-        .hero-title {
-          animation: fadeSlideUp 0.8s ease forwards;
-        }
-        .hero-sub {
-          animation: fadeSlideUp 0.8s 0.2s ease both;
-        }
-        .hero-cta {
-          animation: fadeSlideUp 0.8s 0.4s ease both;
-        }
-        .hero-badge {
-          animation: fadeSlideUp 0.8s 0.1s ease both;
-        }
-
-        .orb {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(80px);
-          opacity: 0.25;
-        }
-        .orb-0 { animation: float 8s ease-in-out infinite; }
-        .orb-1 { animation: float 11s ease-in-out infinite 1.5s; }
-        .orb-2 { animation: float 9s ease-in-out infinite 3s; }
-
-        .feature-card {
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .feature-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 20px 60px rgba(124,58,237,0.15);
-        }
-
-        .cta-btn {
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .cta-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 40px rgba(124,58,237,0.5);
-        }
-        .cta-btn::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
-          background-size: 200% 100%;
-          animation: shimmer 2.5s ease infinite;
-        }
-
-        .xp-bar-fill {
-          animation: fillBar 2s ease 0.5s both;
-        }
-        @keyframes fillBar {
-          from { width: 0%; }
-          to { width: 73%; }
-        }
-
-        .nav-link {
-          color: rgba(240,240,245,0.6);
-          text-decoration: none;
-          font-size: 14px;
-          font-weight: 600;
-          letter-spacing: 0.05em;
-          transition: color 0.2s;
-        }
-        .nav-link:hover { color: #F0F0F5; }
-
-        .grid-pattern {
-          background-image: 
-            linear-gradient(rgba(124,58,237,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(124,58,237,0.06) 1px, transparent 1px);
-          background-size: 60px 60px;
-        }
-
-        .tag {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 4px 12px;
-          border-radius: 20px;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          border: 1px solid;
+        @import url('https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+ 
+        @keyframes floatA { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-16px) rotate(2deg)} }
+        @keyframes floatB { 0%,100%{transform:translateY(0) rotate(1deg)}  50%{transform:translateY(-12px) rotate(-2deg)} }
+        @keyframes floatC { 0%,100%{transform:translateY(0)}               50%{transform:translateY(-10px)} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes wiggle { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-8deg)} 75%{transform:rotate(8deg)} }
+        @keyframes barFill { from{width:0%} to{width:75%} }
+ 
+        .float-a { animation: floatA 5s ease-in-out infinite; }
+        .float-b { animation: floatB 6.5s ease-in-out infinite 1s; }
+        .float-c { animation: floatC 7s ease-in-out infinite 2s; }
+ 
+        .fade-up   { animation: fadeUp 0.7s ease both; }
+        .fade-up-1 { animation: fadeUp 0.7s 0.15s ease both; }
+        .fade-up-2 { animation: fadeUp 0.7s 0.30s ease both; }
+ 
+        .card-hover { transition: transform .25s ease, box-shadow .25s ease; }
+        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.08); }
+        .card-hover:hover .mascot-wi { animation: wiggle .5s ease; }
+ 
+        .xp-bar { animation: barFill 1.8s ease .5s both; }
+ 
+        .noise-bg::after {
+          content:""; position:absolute; inset:0;
+          background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          opacity:.018; pointer-events:none; z-index:10; border-radius:inherit;
         }
       `}</style>
-
-      {/* NAV */}
-      <nav
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          padding: "20px 40px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          background: scrollY > 50 ? "rgba(10,10,15,0.9)" : "transparent",
-          backdropFilter: scrollY > 50 ? "blur(20px)" : "none",
-          borderBottom:
-            scrollY > 50 ? "1px solid rgba(255,255,255,0.06)" : "none",
-          transition: "all 0.3s ease",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: "linear-gradient(135deg, #7C3AED, #2563EB)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 16,
-            }}
-          >
-            ⚔️
-          </div>
+ 
+      {/* ── NAV ──────────────────────────────────────────────── */}
+      <nav className="flex justify-between items-center px-6 py-5 max-w-7xl mx-auto">
+        <div className="flex items-center gap-2">
+          <Mascot sprite={S1.jump} size={32} />
           <span
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: 18,
-              letterSpacing: "-0.02em",
-            }}
+            className="text-xl md:text-2xl font-black italic tracking-tight text-[#630ed4]"
+            style={{ fontFamily: "'Epilogue', sans-serif" }}
           >
             Questify
           </span>
         </div>
-        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
-          <a href="#features" className="nav-link">
-            Features
-          </a>
-          <a href="#how" className="nav-link">
-            How it Works
-          </a>
-          <a href="#stats" className="nav-link">
-            Results
-          </a>
-          <a
-            href="/login"
-            style={{
-              padding: "9px 22px",
-              borderRadius: 8,
-              background: "linear-gradient(135deg, #7C3AED, #5B21B6)",
-              color: "#fff",
-              textDecoration: "none",
-              fontWeight: 700,
-              fontSize: 14,
-              border: "1px solid rgba(124,58,237,0.5)",
-            }}
+ 
+        <div className="hidden md:flex items-center gap-10 text-[#4a4455] text-sm font-semibold tracking-wide">
+          {["Features", "How it works", "Results"].map((l) => (
+            <a key={l} href={`#${l.toLowerCase().replace(/ /g, "-")}`}
+              className="hover:text-[#630ed4] transition-colors">{l}</a>
+          ))}
+        </div>
+ 
+        <div className="flex items-center gap-2">
+          {/* FIX 2: All buttons call onStart */}
+          <button
+            onClick={onStart}
+            className="hidden sm:block font-bold text-sm px-4 py-2 hover:text-[#630ed4] transition-colors"
+          >
+            Log In
+          </button>
+          <button
+            onClick={onStart}
+            className="bg-[#121c2a] text-[#f8f9ff] font-bold text-sm px-4 md:px-6 py-2.5 md:py-3 rounded-full border border-[#121c2a] hover:bg-[#f8f9ff] hover:text-[#121c2a] transition-all"
           >
             Start Quest →
-          </a>
+          </button>
         </div>
       </nav>
-
-      {/* HERO */}
-      <section
-        style={{
-          position: "relative",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "120px 24px 80px",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          className="grid-pattern"
-          style={{ position: "absolute", inset: 0, opacity: 0.5 }}
-        />
-        {floatingOrbs.map((orb, i) => (
-          <div
-            key={i}
-            className={`orb orb-${i}`}
-            style={{
-              width: orb.size,
-              height: orb.size,
-              left: `${orb.x}%`,
-              top: `${orb.y}%`,
-              background: orb.color,
-            }}
-          />
-        ))}
-
-        {/* FLOATING UI CARD */}
-        <div
-          style={{
-            position: "absolute",
-            right: "8%",
-            top: "22%",
-            background: "rgba(255,255,255,0.04)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: 16,
-            padding: "20px",
-            width: 220,
-            animation: "float 7s ease-in-out infinite",
-          }}
-        >
-          <div
-            style={{
-              fontSize: 11,
-              color: "rgba(255,255,255,0.5)",
-              marginBottom: 10,
-              fontFamily: "'Space Mono', monospace",
-            }}
-          >
-            LEVEL PROGRESS
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 12,
-            }}
-          >
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #7C3AED, #2563EB)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 16,
-              }}
-            >
-              🧙
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>Level 12</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
-                Scholar
-              </div>
-            </div>
-          </div>
-          <div
-            style={{
-              height: 6,
-              background: "rgba(255,255,255,0.1)",
-              borderRadius: 3,
-              overflow: "hidden",
-            }}
-          >
-            <div
-              className="xp-bar-fill"
-              style={{
-                height: "100%",
-                background: "linear-gradient(90deg, #7C3AED, #2563EB)",
-                borderRadius: 3,
-              }}
-            />
-          </div>
-          <div
-            style={{
-              fontSize: 11,
-              color: "rgba(255,255,255,0.5)",
-              marginTop: 6,
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>1460 XP</span>
-            <span>2000 XP</span>
-          </div>
-        </div>
-
-        {/* FLOATING QUEST CARD */}
-        <div
-          style={{
-            position: "absolute",
-            left: "6%",
-            bottom: "28%",
-            background: "rgba(255,255,255,0.04)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: 16,
-            padding: "16px",
-            width: 200,
-            animation: "float 9s ease-in-out infinite 2s",
-          }}
-        >
-          <div
-            style={{
-              fontSize: 11,
-              color: "rgba(255,255,255,0.5)",
-              marginBottom: 10,
-              fontFamily: "'Space Mono', monospace",
-            }}
-          >
-            ACTIVE QUEST
-          </div>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
-            📚 Calculus Chapter 4
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span style={{ fontSize: 11, color: "#059669", fontWeight: 700 }}>
-              +120 XP
-            </span>
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
-              25:00 ⏱
-            </span>
-          </div>
-        </div>
-
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-            textAlign: "center",
-            maxWidth: 820,
-          }}
-        >
-          <div className="hero-badge" style={{ marginBottom: 24 }}>
-            <span
-              className="tag"
-              style={{
-                borderColor: "rgba(124,58,237,0.4)",
-                color: "#A78BFA",
-                background: "rgba(124,58,237,0.1)",
-              }}
-            >
-              🎮 Gamified Learning OS
-            </span>
-          </div>
-
-          <h1
-            className="hero-title"
-            style={{
-              fontSize: "clamp(48px, 8vw, 96px)",
-              fontWeight: 800,
-              letterSpacing: "-0.04em",
-              lineHeight: 1.0,
-              marginBottom: 28,
-              background:
-                "linear-gradient(135deg, #F0F0F5 0%, rgba(240,240,245,0.6) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Turn studying
-            <br />
-            <span
-              style={{
-                background:
-                  "linear-gradient(135deg, #7C3AED, #2563EB, #059669)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              into quests.
-            </span>
-          </h1>
-
-          <p
-            className="hero-sub"
-            style={{
-              fontSize: "clamp(16px, 2vw, 20px)",
-              color: "rgba(240,240,245,0.55)",
-              lineHeight: 1.65,
-              maxWidth: 560,
-              margin: "0 auto 40px",
-            }}
-          >
-            Questify transforms your study tasks into RPG missions. Earn XP,
-            build streaks, unlock skills, and compete in guilds — because your
-            ambition deserves more than a to-do list.
-          </p>
-
-          <div
-            className="hero-cta"
-            style={{
-              display: "flex",
-              gap: 16,
-              justifyContent: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <button
-              className="cta-btn"
-              style={{
-                padding: "16px 36px",
-                borderRadius: 12,
-                background: "linear-gradient(135deg, #7C3AED, #5B21B6)",
-                color: "#fff",
-                border: "1px solid rgba(124,58,237,0.5)",
-                fontFamily: "'Syne', sans-serif",
-                fontWeight: 700,
-                fontSize: 16,
-                cursor: "pointer",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Begin Your Quest — Free
-            </button>
-            <button
-              style={{
-                padding: "16px 28px",
-                borderRadius: 12,
-                background: "transparent",
-                color: "rgba(240,240,245,0.7)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                fontFamily: "'Syne', sans-serif",
-                fontWeight: 600,
-                fontSize: 16,
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-            >
-              Watch Demo ▶
-            </button>
-          </div>
-
-          <div
-            style={{
-              marginTop: 56,
-              display: "flex",
-              justifyContent: "center",
-              gap: 8,
-            }}
-          >
-            {["No credit card", "Student-first", "Works offline"].map(
-              (t, i) => (
-                <span
-                  key={i}
-                  style={{
-                    fontSize: 12,
-                    color: "rgba(240,240,245,0.4)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                  }}
-                >
-                  {i > 0 && (
-                    <span
-                      style={{
-                        color: "rgba(255,255,255,0.15)",
-                        marginRight: 8,
-                      }}
-                    >
-                      ·
-                    </span>
-                  )}
-                  ✓ {t}
-                </span>
-              ),
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section
-        id="stats"
-        style={{
-          padding: "80px 40px",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          display: "flex",
-          justifyContent: "center",
-          gap: 80,
-          flexWrap: "wrap",
-        }}
-      >
-        {stats.map((s, i) => (
-          <div key={i} style={{ textAlign: "center" }}>
-            <div
-              style={{
-                fontSize: "clamp(40px, 5vw, 64px)",
-                fontWeight: 800,
-                fontFamily: "'Space Mono', monospace",
-                background: "linear-gradient(135deg, #7C3AED, #2563EB)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                letterSpacing: "-0.03em",
-              }}
-            >
-              {s.value}
-            </div>
-            <div
-              style={{
-                fontSize: 14,
-                color: "rgba(240,240,245,0.5)",
-                marginTop: 8,
-                fontWeight: 500,
-              }}
-            >
-              {s.label}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* FEATURES */}
-      <section
-        id="features"
-        style={{ padding: "100px 40px", maxWidth: 1100, margin: "0 auto" }}
-      >
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <span
-            className="tag"
-            style={{
-              borderColor: "rgba(124,58,237,0.4)",
-              color: "#A78BFA",
-              background: "rgba(124,58,237,0.1)",
-              marginBottom: 20,
-              display: "inline-flex",
-            }}
-          >
-            ⚔️ Arsenal
-          </span>
-          <h2
-            style={{
-              fontSize: "clamp(32px, 5vw, 56px)",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              marginTop: 16,
-            }}
-          >
-            Your full quest toolkit
-          </h2>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: 20,
-          }}
-        >
-          {features.map((f, i) => (
-            <div
-              key={i}
-              className="feature-card"
-              style={{
-                padding: "28px",
-                borderRadius: 16,
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
+ 
+      {/* ── HERO ─────────────────────────────────────────────── */}
+      <header className="max-w-7xl mx-auto px-6 pt-4 pb-16">
+        {/* Stats row — horizontal even on mobile */}
+        <div className="flex flex-row justify-between items-center gap-2 mb-10 px-2">
+          {stats.map((s) => (
+            <div key={s.label} className="text-center">
               <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: 2,
-                  background: `linear-gradient(90deg, transparent, ${f.color}, transparent)`,
-                }}
-              />
-              <div style={{ fontSize: 36, marginBottom: 16 }}>{f.icon}</div>
-              <h3
-                style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  marginBottom: 10,
-                  letterSpacing: "-0.02em",
-                }}
+                className="text-2xl sm:text-4xl md:text-6xl font-black mb-1 tracking-tight"
+                style={{ fontFamily: "'Epilogue', sans-serif" }}
+              >{s.val}</div>
+              <div className="text-[#4a4455] text-[9px] sm:text-xs font-semibold uppercase tracking-widest leading-tight">{s.label}</div>
+            </div>
+          ))}
+        </div>
+ 
+        {/* Hero card */}
+        <div className="noise-bg bg-white rounded-[28px] md:rounded-[40px] p-7 md:p-14 lg:p-20 shadow-xl border border-[#ccc3d8] flex flex-col lg:flex-row items-center gap-8 lg:gap-16 relative overflow-hidden">
+          <div className="absolute -right-24 -bottom-24 w-96 h-96 bg-[#630ed4]/5 rounded-full blur-3xl pointer-events-none" />
+ 
+          {/* Copy */}
+          <div className="flex-1 z-10 text-center lg:text-left w-full">
+            <h1
+              className="fade-up mb-5 leading-[1.05] tracking-tighter"
+              style={{ fontFamily: "'Epilogue', sans-serif", fontSize: "clamp(32px, 6vw, 72px)", fontWeight: 800 }}
+            >
+              Study smarter.<br />
+              <span className="italic text-[#7c3aed]">Level up</span> faster.
+            </h1>
+            <p className="fade-up-1 text-sm md:text-lg text-[#4a4455] mb-8 max-w-lg leading-relaxed mx-auto lg:mx-0">
+              The gamified OS that turns your homework into quests and your productivity into power.
+            </p>
+            <div className="fade-up-2 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+              {/* FIX 2: Hero CTA calls onStart */}
+              <button
+                onClick={onStart}
+                className="bg-[#630ed4] text-white font-bold px-7 py-4 rounded-xl text-base md:text-lg shadow-lg hover:-translate-y-0.5 transition-all"
               >
-                {f.title}
-              </h3>
-              <p
-                style={{
-                  fontSize: 14,
-                  color: "rgba(240,240,245,0.5)",
-                  lineHeight: 1.65,
-                }}
-              >
-                {f.desc}
-              </p>
+                Start Quest ⚔️
+              </button>
+              <button className="bg-white border-2 border-[#ccc3d8] text-[#121c2a] font-bold px-7 py-4 rounded-xl text-base md:text-lg hover:bg-[#e6eeff] transition-all">
+                View Demo
+              </button>
+            </div>
+          </div>
+ 
+          {/* Visuals */}
+          <div className="flex-1 relative flex items-center justify-center gap-4 w-full min-h-[200px] lg:min-h-[360px]">
+            <div className="float-a absolute left-0 top-4 opacity-75 hidden lg:block pointer-events-none">
+              <Mascot sprite={S2.coin} size={88} />
+            </div>
+            <div className="float-c absolute left-10 bottom-0 opacity-65 hidden lg:block pointer-events-none">
+              <Mascot sprite={S1.tea} size={68} />
+            </div>
+ 
+            {/* Fox — responsive size */}
+            <div className="float-b relative z-20 flex-shrink-0">
+              <Mascot sprite={S1.jump} size={180} className="sm:hidden" />
+              <Mascot sprite={S1.jump} size={240} className="hidden sm:block lg:hidden" />
+              <Mascot sprite={S1.jump} size={280} className="hidden lg:block" />
+            </div>
+ 
+            {/* Phone — only on large screens */}
+            <div className="relative w-[180px] h-[360px] bg-[#121c2a] rounded-[36px] p-2 shadow-2xl border-[5px] border-slate-800 rotate-3 hidden lg:block flex-shrink-0">
+              <div className="w-full h-full bg-[#f8f9ff] rounded-[28px] overflow-hidden flex flex-col p-3 text-[#121c2a]">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="material-symbols-outlined text-[#630ed4] text-lg">menu</span>
+                  <div className="w-6 h-6 rounded-full bg-[#7c3aed]" />
+                </div>
+                <div className="mb-2">
+                  <p className="text-[8px] font-semibold text-[#4a4455] uppercase tracking-wider mb-0.5">Welcome back</p>
+                  <div className="text-sm font-bold">Alex Chen</div>
+                </div>
+                <div className="bg-[#7c3aed] text-white p-2.5 rounded-xl mb-2">
+                  <div className="text-[7px] font-semibold uppercase mb-1">Current Level</div>
+                  <div className="text-base font-black mb-1">LVL 42</div>
+                  <div className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+                    <div className="xp-bar bg-white h-full rounded-full" />
+                  </div>
+                  <div className="text-[7px] mt-1 text-right opacity-80">3,450 / 4,000 XP</div>
+                </div>
+                <div className="flex-1 flex flex-col gap-1.5">
+                  <p className="text-[7px] font-semibold text-[#4a4455] uppercase tracking-wider">Active Quest</p>
+                  <div className="bg-white border border-[#ccc3d8] p-2 rounded-lg flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[#855300] text-xs">auto_stories</span>
+                    <div>
+                      <div className="text-[9px] font-bold">History Essay</div>
+                      <div className="text-[7px] text-[#4a4455]">25 mins left</div>
+                    </div>
+                  </div>
+                  <div className="bg-white border border-[#ccc3d8] p-2 rounded-lg flex items-center gap-1.5 opacity-40">
+                    <span className="material-symbols-outlined text-[#005b3d] text-xs">calculate</span>
+                    <div>
+                      <div className="text-[9px] font-bold">Math Dungeon</div>
+                      <div className="text-[7px] text-[#4a4455]">Locked — Lv 45</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-around pt-2 border-t border-[#ccc3d8] mt-1">
+                  <span className="material-symbols-outlined text-[#630ed4] text-sm">home</span>
+                  <span className="material-symbols-outlined text-[#4a4455] text-sm">map</span>
+                  <span className="material-symbols-outlined text-[#4a4455] text-sm">person</span>
+                </div>
+              </div>
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-3 bg-[#121c2a] rounded-full" />
+            </div>
+          </div>
+        </div>
+      </header>
+ 
+      {/* ── PROOF BAR ────────────────────────────────────────── */}
+      <section className="bg-[#27313f] py-10">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-around items-center gap-6 sm:gap-12">
+          {proofItems.map((p) => (
+            <div key={p.label} className="flex items-center gap-3">
+              <span className={`material-symbols-outlined text-3xl md:text-4xl ${p.color}`}>{p.icon}</span>
+              <div className="text-left">
+                <div
+                  className="text-white font-bold text-xl md:text-2xl"
+                  style={{ fontFamily: "'Epilogue', sans-serif" }}
+                >{p.val}</div>
+                <div className="text-slate-400 text-[10px] md:text-xs font-semibold uppercase tracking-widest mt-0.5">{p.label}</div>
+              </div>
             </div>
           ))}
         </div>
       </section>
-
-      {/* HOW IT WORKS */}
-      <section
-        id="how"
-        style={{
-          padding: "100px 40px",
-          background: "rgba(255,255,255,0.02)",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
-        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
+ 
+      {/* ── FEATURES ─────────────────────────────────────────── */}
+      <section id="features" className="py-16 md:py-24 px-6 max-w-7xl mx-auto">
+        <div className="mb-10 md:mb-16 text-center">
           <h2
-            style={{
-              fontSize: "clamp(32px, 5vw, 52px)",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              marginBottom: 20,
-            }}
-          >
-            The Quest Loop
-          </h2>
-          <p
-            style={{
-              color: "rgba(240,240,245,0.5)",
-              fontSize: 16,
-              lineHeight: 1.7,
-              marginBottom: 60,
-            }}
-          >
-            A daily cycle engineered for momentum — small wins compound into
-            mastery.
+            className="text-3xl md:text-4xl font-bold mb-3"
+            style={{ fontFamily: "'Epilogue', sans-serif" }}
+          >Your Study Toolkit</h2>
+          <p className="text-sm md:text-lg text-[#4a4455]">
+            Equip yourself with everything needed to conquer the academic year.
           </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {[
-              {
-                n: "01",
-                title: "Create a Quest",
-                desc: "Add a task, estimate time, assign to a subject skill tree.",
-              },
-              {
-                n: "02",
-                title: "Start the Timer",
-                desc: "25-minute Pomodoro session begins. Focus mode locks distractions.",
-              },
-              {
-                n: "03",
-                title: "Earn XP & Streak",
-                desc: "Complete it — get instant XP. Finish daily — grow your streak.",
-              },
-              {
-                n: "04",
-                title: "Level Up",
-                desc: "Every 100 XP pushes you to the next level. Badges, titles, unlocks.",
-              },
-            ].map((step, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  gap: 24,
-                  textAlign: "left",
-                  position: "relative",
-                  paddingBottom: i < 3 ? 40 : 0,
-                }}
-              >
-                {i < 3 && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: 24,
-                      top: 52,
-                      bottom: 0,
-                      width: 1,
-                      background: "rgba(124,58,237,0.2)",
-                    }}
-                  />
-                )}
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 12,
-                    flexShrink: 0,
-                    background:
-                      "linear-gradient(135deg, rgba(124,58,237,0.3), rgba(37,99,235,0.3))",
-                    border: "1px solid rgba(124,58,237,0.3)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontFamily: "'Space Mono', monospace",
-                    fontWeight: 700,
-                    fontSize: 12,
-                    color: "#A78BFA",
-                  }}
-                >
-                  {step.n}
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {features.map((f) => (
+            <div key={f.title} className={`card-hover p-5 md:p-8 rounded-xl ${f.bg} border-l-4 ${f.border} shadow-sm cursor-default`}>
+              <div className="mascot-wi mb-4">
+                <Mascot sprite={f.sprite} size={52} className="md:hidden" />
+                <Mascot sprite={f.sprite} size={64} className="hidden md:block" />
+              </div>
+              <h3
+                className="text-base md:text-2xl font-bold mb-2"
+                style={{ fontFamily: "'Epilogue', sans-serif" }}
+              >{f.title}</h3>
+              <p className="text-[#4a4455] text-xs md:text-base leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+ 
+      {/* ── HOW IT WORKS ─────────────────────────────────────── */}
+      <section id="how-it-works" className="py-16 md:py-24 px-6 bg-[#eff4ff]">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-10 md:mb-16 text-center">
+            <h2
+              className="text-3xl md:text-4xl font-bold mb-3"
+              style={{ fontFamily: "'Epilogue', sans-serif" }}
+            >The Quest Loop</h2>
+            <p className="text-sm md:text-lg text-[#4a4455]">Four steps engineered for momentum.</p>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+            {steps.map((s) => (
+              <div key={s.n} className="card-hover bg-white rounded-xl p-4 md:p-6 text-center shadow-sm border border-[#ccc3d8]">
+                <div className="inline-block px-2 md:px-3 py-1 rounded-full bg-[#121c2a] text-[#f8f9ff] text-[10px] md:text-xs font-bold mb-3 md:mb-5 tracking-wider">
+                  {s.n}
                 </div>
-                <div>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 18,
-                      marginBottom: 6,
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    {step.title}
-                  </div>
-                  <div
-                    style={{
-                      color: "rgba(240,240,245,0.5)",
-                      fontSize: 14,
-                      lineHeight: 1.65,
-                    }}
-                  >
-                    {step.desc}
-                  </div>
+                <div className="mascot-wi flex justify-center mb-3">
+                  <Mascot sprite={s.sprite} size={52} className="md:hidden" />
+                  <Mascot sprite={s.sprite} size={72} className="hidden md:block" />
                 </div>
+                <h3
+                  className="text-xs md:text-base font-bold mb-1.5"
+                  style={{ fontFamily: "'Epilogue', sans-serif" }}
+                >{s.title}</h3>
+                <p className="text-[#4a4455] text-[10px] md:text-sm leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
-
-      {/* CTA FOOTER */}
-      <section
-        style={{
-          padding: "100px 40px",
-          textAlign: "center",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          className="orb"
-          style={{
-            width: 400,
-            height: 400,
-            left: "50%",
-            top: "50%",
-            transform: "translate(-50%,-50%)",
-            background: "#7C3AED",
-            opacity: 0.12,
-            filter: "blur(100px)",
-          }}
-        />
-        <div style={{ position: "relative", zIndex: 1 }}>
+ 
+      {/* ── TESTIMONIAL ──────────────────────────────────────── */}
+      <section className="py-16 md:py-24 px-6 max-w-2xl mx-auto text-center">
+        <Mascot sprite={S2.think} size={72} className="float-b mx-auto mb-5" />
+        <blockquote
+          className="text-xl md:text-3xl font-bold leading-snug mb-4"
+          style={{ fontFamily: "'Epilogue', sans-serif" }}
+        >
+          "I used to dread studying.<br />
+          Now I'm chasing my next level."
+        </blockquote>
+        <p className="text-[#4a4455] text-xs md:text-sm font-semibold tracking-wide">
+          — AyuStar · Rank #2 · Study Squad Guild
+        </p>
+      </section>
+ 
+      {/* ── FINAL CTA ────────────────────────────────────────── */}
+      <section className="noise-bg bg-[#27313f] py-16 md:py-24 px-6 text-center relative overflow-hidden">
+        <div className="absolute left-4 bottom-0 opacity-40 hidden lg:block pointer-events-none float-a">
+          <Mascot sprite={S1.chest} size={120} />
+        </div>
+        <div className="absolute right-4 bottom-0 opacity-40 hidden lg:block pointer-events-none float-b">
+          <Mascot sprite={S2.point} size={120} />
+        </div>
+        <div className="relative z-10 max-w-xl mx-auto">
+          <Mascot sprite={S1.trophy} size={80} className="float-c mx-auto mb-5" />
           <h2
-            style={{
-              fontSize: "clamp(36px, 6vw, 72px)",
-              fontWeight: 800,
-              letterSpacing: "-0.04em",
-              marginBottom: 20,
-            }}
+            className="font-black tracking-tighter text-white mb-4"
+            style={{ fontFamily: "'Epilogue', sans-serif", fontSize: "clamp(26px, 5vw, 56px)" }}
           >
-            Your studying era
-            <br />
-            starts today.
+            Your studying era<br />starts today.
           </h2>
-          <p
-            style={{
-              color: "rgba(240,240,245,0.5)",
-              fontSize: 16,
-              marginBottom: 40,
-            }}
-          >
+          <p className="text-slate-400 text-sm md:text-lg mb-8">
             Join thousands of students turning tasks into victories.
           </p>
+          {/* FIX 2: Final CTA calls onStart */}
           <button
-            className="cta-btn"
-            style={{
-              padding: "18px 48px",
-              borderRadius: 14,
-              background: "linear-gradient(135deg, #7C3AED, #5B21B6)",
-              color: "#fff",
-              border: "1px solid rgba(124,58,237,0.5)",
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: 18,
-              cursor: "pointer",
-              letterSpacing: "-0.01em",
-            }}
+            onClick={onStart}
+            className="bg-[#fea619] text-[#2a1700] font-bold px-8 md:px-10 py-4 md:py-5 rounded-full text-base md:text-lg shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all"
           >
-            Create Free Account →
+            Create Free Account ⚔️
           </button>
+          <p className="text-slate-500 text-xs md:text-sm mt-4">No credit card · Free forever plan</p>
         </div>
       </section>
-
-      {/* FOOTER */}
-      <footer
-        style={{
-          borderTop: "1px solid rgba(255,255,255,0.06)",
-          padding: "32px 40px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 16,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 20 }}>⚔️</span>
-          <span style={{ fontWeight: 800, letterSpacing: "-0.02em" }}>
-            Questify
-          </span>
-        </div>
-        <div style={{ fontSize: 13, color: "rgba(240,240,245,0.3)" }}>
-          © 2026 Questify · Gamified Learning OS
+ 
+      {/* ── FOOTER ───────────────────────────────────────────── */}
+      <footer className="bg-white border-t-2 border-slate-100 pt-10 pb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center px-6 max-w-7xl mx-auto text-sm gap-6">
+          <div className="flex flex-col gap-2 items-center md:items-start">
+            <div className="flex items-center gap-2">
+              <Mascot sprite={S1.jump} size={28} />
+              <span
+                className="text-lg md:text-xl font-black italic text-[#630ed4]"
+                style={{ fontFamily: "'Epilogue', sans-serif" }}
+              >Questify</span>
+            </div>
+            <p className="text-[#4a4455] text-center md:text-left text-xs max-w-[180px]">
+              © 2026 Questify OS. Level up your learning.
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-[#4a4455] text-xs md:text-sm">
+            {["Privacy Policy", "Terms of Service", "Discord", "Support"].map((l) => (
+              <a key={l} href="#" className="hover:text-[#630ed4] transition-colors">{l}</a>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            {["share", "person"].map((icon) => (
+              <div
+                key={icon}
+                className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-[#e6eeff] flex items-center justify-center hover:bg-[#eaddff] transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[#4a4455] text-base md:text-lg">{icon}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </footer>
     </div>
   );
 }
+ 
