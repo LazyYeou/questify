@@ -18,6 +18,25 @@ import {
   Sparkles,
 } from "lucide-react";
 
+// Images to cache on load
+import userIcon from "./assets/icon/user.png";
+import confuseMascot from "./assets/mascot/confuse.png";
+import goMascot from "./assets/mascot/go.png";
+import happyMascot from "./assets/mascot/happy.png";
+import leaderboardMascot from "./assets/mascot/leaderboard.png";
+import levelupMascot from "./assets/mascot/levelup.png";
+import sadMascot from "./assets/mascot/sad.png";
+
+const PRELOAD_IMAGES = [
+  userIcon,
+  confuseMascot,
+  goMascot,
+  happyMascot,
+  leaderboardMascot,
+  levelupMascot,
+  sadMascot,
+];
+
 type Page =
   | "dashboard"
   | "quests"
@@ -40,6 +59,12 @@ function App() {
   useEffect(() => {
     fetchUser();
     fetchTasks();
+
+    // Cache/preload images
+    PRELOAD_IMAGES.forEach((src) => {
+      const img = new window.Image();
+      img.src = src;
+    });
   }, [fetchUser, fetchTasks]);
 
   if (activeTask) {
