@@ -35,6 +35,7 @@ export interface User {
 }
 
 export type Page =
+  | "login"
   | "dashboard"
   | "quests"
   | "leaderboard"
@@ -75,7 +76,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   user: null,
   activeTask: null,
   editingTask: null,
-  currentPage: "dashboard",
+  currentPage: "login",
   isModalOpen: false,
   isLoading: false,
   error: null,
