@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import { PomodoroTimer } from "./components/PomodoroTimer";
 import { useTaskStore } from "./store/useTaskStore";
@@ -9,6 +9,8 @@ import LeaderboardPage from "./pages/LeaderboardPage";
 import ShopPage from "./pages/ShopPage";
 import ProfilePage from "./pages/ProfilePage";
 import AchievementsPage from "./pages/AchievementsPage";
+// import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
 import {
   LayoutDashboard,
   Target,
@@ -36,15 +38,6 @@ const PRELOAD_IMAGES = [
   levelupMascot,
   sadMascot,
 ];
-
-type Page =
-  | "dashboard"
-  | "quests"
-  | "leaderboard"
-  | "shop"
-  | "profile"
-  | "create-task"
-  | "achievements";
 
 function App() {
   const {
@@ -79,6 +72,8 @@ function App() {
 
   const renderPage = () => {
     switch (currentPage) {
+      case "login":
+        return <LoginPage onLogin={() => setCurrentPage("dashboard")} />;
       case "dashboard":
         return <DashboardPage />;
       case "quests":
@@ -94,7 +89,7 @@ function App() {
       case "achievements":
         return <AchievementsPage />;
       default:
-        return <DashboardPage />;
+        return <LoginPage onLogin={() => setCurrentPage("dashboard")} />;
     }
   };
 
@@ -106,7 +101,9 @@ function App() {
           onClick={() => {
             const { setEditingTask } = useTaskStore.getState();
             setEditingTask(null);
-            setCurrentPage(currentPage === "achievements" ? "profile" : "dashboard");
+            setCurrentPage(
+              currentPage === "achievements" ? "profile" : "dashboard",
+            );
           }}
           className="fixed top-6 left-6 z-50 bg-white text-[#7B7F97] hover:text-[#5B4DDB] px-5 py-2.5 rounded-2xl shadow-sm border border-slate-100 transition-all text-[10px] font-black uppercase tracking-widest hover:scale-[1.05] active:scale-[0.95]"
         >
@@ -118,42 +115,45 @@ function App() {
       <div className="max-w-6xl mx-auto pb-24">{renderPage()}</div>
 
       {/* Global Bottom Navigation */}
-      {currentPage !== "create-task" && currentPage !== "achievements" && !isModalOpen && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-lg px-2 z-50">
-          <div className="bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] px-6 py-4 flex items-center justify-around border border-white/50 backdrop-blur-xl">
-            <BottomItem
-              active={currentPage === "dashboard"}
-              icon={<LayoutDashboard className="w-6 h-6" />}
-              label="Home"
-              onClick={() => setCurrentPage("dashboard")}
-            />
-            <BottomItem
-              active={currentPage === "quests"}
-              icon={<Target className="w-6 h-6" />}
-              label="Quests"
-              onClick={() => setCurrentPage("quests")}
-            />
-            <BottomItem
-              active={currentPage === "leaderboard"}
-              icon={<Trophy className="w-6 h-6" />}
-              label="Ranks"
-              onClick={() => setCurrentPage("leaderboard")}
-            />
-            <BottomItem
-              active={currentPage === "shop"}
-              icon={<ShoppingCart className="w-6 h-6" />}
-              label="Shop"
-              onClick={() => setCurrentPage("shop")}
-            />
-            <BottomItem
-              active={currentPage === "profile"}
-              icon={<User className="w-6 h-6" />}
-              label="Profile"
-              onClick={() => setCurrentPage("profile")}
-            />
+      {currentPage !== "create-task" &&
+        currentPage !== "achievements" &&
+        currentPage !== "login" &&
+        !isModalOpen && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-lg px-2 z-50">
+            <div className="bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] px-6 py-4 flex items-center justify-around border border-white/50 backdrop-blur-xl">
+              <BottomItem
+                active={currentPage === "dashboard"}
+                icon={<LayoutDashboard className="w-6 h-6" />}
+                label="Home"
+                onClick={() => setCurrentPage("dashboard")}
+              />
+              <BottomItem
+                active={currentPage === "quests"}
+                icon={<Target className="w-6 h-6" />}
+                label="Quests"
+                onClick={() => setCurrentPage("quests")}
+              />
+              <BottomItem
+                active={currentPage === "leaderboard"}
+                icon={<Trophy className="w-6 h-6" />}
+                label="Ranks"
+                onClick={() => setCurrentPage("leaderboard")}
+              />
+              <BottomItem
+                active={currentPage === "shop"}
+                icon={<ShoppingCart className="w-6 h-6" />}
+                label="Shop"
+                onClick={() => setCurrentPage("shop")}
+              />
+              <BottomItem
+                active={currentPage === "profile"}
+                icon={<User className="w-6 h-6" />}
+                label="Profile"
+                onClick={() => setCurrentPage("profile")}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Global Toast Notification */}
       <Toast />
