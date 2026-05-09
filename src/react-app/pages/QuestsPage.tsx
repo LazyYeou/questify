@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Sparkles, Trophy, Target, CheckCircle2, Gift, Zap } from "lucide-react";
+import { Sparkles, Trophy, Target, CheckCircle2, Coins, Zap } from "lucide-react";
 import questMascot from "../assets/mascot/levelup.png";
 import { useTaskStore, Quest } from "../store/useTaskStore";
 
@@ -70,7 +70,7 @@ const QuestCard: React.FC<QuestCardProps> = ({ quest, onClaim }) => {
               <span className="font-black text-[10px] text-[#111827]">{rewardExp}</span>
             </div>
             <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
-              <Gift size={10} className="text-[#5B4DDB]" />
+              <Coins size={10} className="text-[#5B4DDB]" />
               <span className="font-black text-[10px] text-[#111827]">{rewardCoins}</span>
             </div>
           </div>

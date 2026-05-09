@@ -34,7 +34,9 @@ export default function LoginPage() {
 
           {/* Google Login Button */}
           <button
-            onClick={() => window.location.href = '/api/auth/google'}
+            onClick={() =>
+              (window.location.href = `/api/auth/google?origin=${encodeURIComponent(window.location.origin)}`)
+            }
             className="w-full bg-white text-[#111827] px-4 py-4 sm:px-6 sm:py-5 rounded-[24px] font-black text-xs sm:text-base uppercase tracking-widest border-[3px] border-slate-200 shadow-[0_6px_0_#e2e8f0] hover:border-slate-300 hover:translate-y-0.5 hover:shadow-[0_3px_0_#cbd5e1] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 sm:gap-4 group"
           >
             <svg
@@ -63,12 +65,37 @@ export default function LoginPage() {
             Continue with Google
           </button>
 
+          {/* Guest Login Button */}
+          <button
+            onClick={async () => {
+              await fetch("/api/auth/guest", { method: "POST" });
+              window.location.href = "/";
+            }}
+            className="w-full bg-slate-50 text-[#7B7F97] px-4 py-3 sm:px-6 sm:py-4 rounded-[24px] font-black text-xs sm:text-sm uppercase tracking-widest border-[3px] border-slate-200 shadow-[0_4px_0_#e2e8f0] hover:border-slate-300 hover:translate-y-0.5 hover:shadow-[0_2px_0_#cbd5e1] active:translate-y-1 active:shadow-none transition-all mt-4"
+          >
+            Login as Guest
+            {/* <p className="font-medium text-xs">
+              {" "}
+              If you logout your data will be lost
+            </p> */}
+          </button>
+
           <div className="mt-6 sm:mt-8 text-[9px] sm:text-xs font-bold text-[#7B7F97] uppercase tracking-widest leading-relaxed flex flex-col items-center gap-1 sm:block">
             <span>By logging in, you agree to our</span>
             <span>
-              <a href="#" className="text-[#5B4DDB] hover:underline underline-offset-2">Terms of Service</a>
+              <a
+                href="#"
+                className="text-[#5B4DDB] hover:underline underline-offset-2"
+              >
+                Terms of Service
+              </a>
               <span className="mx-1">and</span>
-              <a href="#" className="text-[#5B4DDB] hover:underline underline-offset-2">Privacy Policy</a>
+              <a
+                href="#"
+                className="text-[#5B4DDB] hover:underline underline-offset-2"
+              >
+                Privacy Policy
+              </a>
             </span>
           </div>
         </div>
@@ -78,7 +105,7 @@ export default function LoginPage() {
           className="absolute -bottom-4 right-4 sm:-bottom-6 sm:right-[-20px] bg-[#5B4DDB] text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border-[2px] sm:border-[3px] border-[#4539a5] shadow-[0_4px_0_#3730a3] text-[9px] sm:text-[10px] font-black uppercase tracking-widest rotate-6 animate-bounce"
           style={{ animationDuration: "3s" }}
         >
-          Free Forever!
+          It's Free!
         </div>
       </div>
     </div>

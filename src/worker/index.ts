@@ -24,20 +24,26 @@ app.get("/api/auth/google", (c) => {
   const rawId = c.env.GOOGLE_CLIENT_ID || "dummy_id";
   const clientId = rawId.replace(/['"]/g, ""); // Remove accidental quotes
   
-  const isDev = c.req.url.includes("localhost") || c.req.url.includes("127.0.0.1");
-  const origin = isDev ? "http://localhost:5173" : new URL(c.req.url).origin;
+  const clientOrigin = c.req.query("origin");
+  const forwardedHost = c.req.header("x-forwarded-host");
+  const host = forwardedHost || c.req.header("host") || new URL(c.req.url).host;
+  const protocol = c.req.header("x-forwarded-proto") || (host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https");
+  
+  const origin = clientOrigin || `${protocol}://${host}`;
   const redirectUri = `${origin}/api/auth/google/callback`;
+  const state = btoa(redirectUri);
   
   if (clientId === "dummy_id") {
-    return c.redirect(`${redirectUri}?code=dummy_code`);
+    return c.redirect(`${redirectUri}?code=dummy_code&state=${state}`);
   }
   
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email profile&prompt=select_account`;
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email profile&prompt=select_account&state=${state}`;
   return c.redirect(url);
 });
 
 app.get("/api/auth/google/callback", async (c) => {
   const code = c.req.query("code");
+  const state = c.req.query("state");
   if (!code) return c.json({ error: "No code provided" }, 400);
 
   const rawId = c.env.GOOGLE_CLIENT_ID || "dummy_id";
@@ -45,9 +51,22 @@ app.get("/api/auth/google/callback", async (c) => {
   const clientId = rawId.replace(/['"]/g, "");
   const clientSecret = rawSecret.replace(/['"]/g, "");
   
-  const isDev = c.req.url.includes("localhost") || c.req.url.includes("127.0.0.1");
-  const origin = isDev ? "http://localhost:5173" : new URL(c.req.url).origin;
-  const redirectUri = `${origin}/api/auth/google/callback`;
+  let redirectUri = "";
+  if (state) {
+    try {
+      redirectUri = atob(state);
+    } catch {
+      // Ignore
+    }
+  }
+
+  if (!redirectUri) {
+    const forwardedHost = c.req.header("x-forwarded-host");
+    const host = forwardedHost || c.req.header("host") || new URL(c.req.url).host;
+    const protocol = c.req.header("x-forwarded-proto") || (host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https");
+    const origin = `${protocol}://${host}`;
+    redirectUri = `${origin}/api/auth/google/callback`;
+  }
 
   // Exchange code for token
   const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
@@ -103,10 +122,12 @@ app.get("/api/auth/google/callback", async (c) => {
   const secret = (c.env.JWT_SECRET || "fallback_secret").replace(/['"]/g, "");
   const token = await sign(payload, secret);
 
+  const isSecure = protocol === "https";
+
   setCookie(c, "auth_token", token, {
     path: "/",
     httpOnly: true,
-    secure: c.req.url.startsWith("https"),
+    secure: isSecure,
     maxAge: 60 * 60 * 24 * 30,
     sameSite: "Lax",
   });
@@ -122,6 +143,39 @@ app.post("/api/auth/logout", (c) => {
     maxAge: 0,
     sameSite: "Lax",
   });
+  return c.json({ success: true });
+});
+
+// Guest Login (Alternative)
+app.post("/api/auth/guest", async (c) => {
+  const db = drizzle(c.env.db);
+  
+  const guestEmail = `guest_${crypto.randomUUID()}@questify.local`;
+
+  const [guestUser] = await db
+    .insert(users)
+    .values({
+      email: guestEmail,
+      name: null, // Forces UsernameModal to appear
+      avatarUrl: null,
+    })
+    .returning();
+
+  const payload = {
+    userId: guestUser.id,
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // 30 days
+  };
+  const secret = (c.env.JWT_SECRET || "fallback_secret").replace(/['"]/g, "");
+  const token = await sign(payload, secret);
+
+  setCookie(c, "auth_token", token, {
+    path: "/",
+    httpOnly: true,
+    secure: c.req.url.startsWith("https"),
+    maxAge: 60 * 60 * 24 * 30,
+    sameSite: "Lax",
+  });
+
   return c.json({ success: true });
 });
 

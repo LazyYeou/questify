@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useTaskStore } from "../store/useTaskStore";
 import { getLevelData } from "../store/levelUtils";
+import sadMascot from "../assets/mascot/sad.png";
 
 const ProfilePage: React.FC = () => {
   const { user, tasks, updateUser, logout } = useTaskStore();
@@ -182,6 +183,7 @@ const ProfilePage: React.FC = () => {
           onClose={() => setIsSettingsOpen(false)}
           currentName={user?.name || ""}
           currentAvatar={user?.avatarUrl}
+          userEmail={user?.email}
           onSave={async (newName, newAvatar) => {
             await updateUser(newName, newAvatar);
             setIsSettingsOpen(false);
@@ -201,6 +203,7 @@ const SettingsModal = ({
   onClose,
   currentName,
   currentAvatar,
+  userEmail,
   onSave,
   onLogout,
 }: {
@@ -208,14 +211,19 @@ const SettingsModal = ({
   onClose: () => void;
   currentName: string;
   currentAvatar: string | null | undefined;
+  userEmail: string | undefined;
   onSave: (name: string, avatar: string | null) => Promise<void>;
   onLogout: () => Promise<void>;
 }) => {
   const [name, setName] = useState(currentName);
   const [avatar, setAvatar] = useState<string | null>(currentAvatar || null);
   const [isSaving, setIsSaving] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   if (!isOpen) return null;
+
+  const isGuest =
+    userEmail?.includes("guest_") && userEmail?.includes("@questify.local");
 
   const AVATARS = [
     "🦊",
@@ -240,6 +248,10 @@ const SettingsModal = ({
     setIsSaving(false);
   };
 
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#111827]/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-[40px] border-[4px] border-slate-100 shadow-[0_16px_0_#f1f5f9] p-6 sm:p-10 w-full max-w-lg animate-in zoom-in-95 duration-300 relative">
@@ -250,112 +262,162 @@ const SettingsModal = ({
           <X size={24} strokeWidth={3} />
         </button>
 
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-14 h-14 bg-[#F1EEFF] rounded-2xl flex items-center justify-center border-[3px] border-[#5B4DDB]/20 text-3xl overflow-hidden">
-            {!avatar ? (
-              <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
-                <UserIcon size={24} strokeWidth={3} />
-              </div>
-            ) : avatar.length <= 4 ? (
-              <span>{avatar}</span>
-            ) : (
+        {showLogoutConfirm ? (
+          <div className="flex flex-col items-center text-center animate-in slide-in-from-right-4 duration-300 pt-6">
+            <div className="w-32 h-32 mx-auto mb-2 relative transform -translate-y-4">
               <img
-                src={avatar}
-                alt="Avatar"
-                className="w-full h-full object-cover"
+                src={sadMascot}
+                alt="Sad Mascot"
+                className="w-full h-full object-contain filter drop-shadow-xl"
               />
-            )}
-          </div>
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic">
-              Profile Settings
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic mb-3">
+              {isGuest ? "Sign Out?" : "Leaving So Soon?"}
             </h2>
-            <p className="text-[#7B7F97] font-bold text-xs uppercase tracking-widest">
-              Manage your hero identity
+            <p className="text-[#7B7F97] font-bold text-sm leading-relaxed mb-8 px-4">
+              {isGuest ? (
+                <>
+                  You are playing as a{" "}
+                  <span className="text-rose-500">Guest</span>. If you sign out
+                  now, your Hero, progress, and tasks will be{" "}
+                  <span className="text-rose-500 underline decoration-rose-200 underline-offset-4">
+                    lost forever
+                  </span>
+                  .
+                </>
+              ) : (
+                "Are you sure you want to sign out? Your progress is saved, but we'll miss you!"
+              )}
             </p>
-          </div>
-        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Avatar Selection */}
-          <div className="space-y-3">
-            <label className="flex items-center gap-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">
-              Choose Avatar
-            </label>
-            <div className="grid grid-cols-6 gap-2 bg-[#F8F9FF] p-4 rounded-[24px] border-[4px] border-slate-100">
+            <div className="w-full flex flex-col gap-3">
               <button
-                type="button"
-                onClick={() => setAvatar(null)}
-                className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
-                  avatar === null
-                    ? "bg-white border-[3px] border-[#5B4DDB] shadow-sm scale-110 text-[#5B4DDB]"
-                    : "bg-slate-50 text-slate-300 hover:bg-white hover:scale-105"
-                }`}
+                onClick={onLogout}
+                className="w-full bg-rose-500 text-white px-8 py-4 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-rose-600 shadow-[0_6px_0_#be123c] hover:translate-y-0.5 hover:shadow-[0_4px_0_#be123c] active:translate-y-1 active:shadow-none transition-all"
               >
-                <UserIcon size={20} strokeWidth={3} />
+                {isGuest ? "Yes, Sign Out & Delete Data" : "Yes, Sign Out"}
               </button>
-              {AVATARS.map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setAvatar(a)}
-                  className={`w-10 h-10 flex items-center justify-center text-2xl rounded-xl transition-all ${
-                    avatar === a
-                      ? "bg-white border-[3px] border-[#5B4DDB] shadow-sm scale-110"
-                      : "hover:bg-white hover:scale-105"
-                  }`}
-                >
-                  {a}
-                </button>
-              ))}
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="w-full bg-white text-[#7B7F97] px-8 py-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] border-[4px] border-slate-100 shadow-[0_4px_0_#f1f5f9] hover:text-[#111827] hover:border-slate-200 hover:translate-y-0.5 hover:shadow-[0_2px_0_#e2e8f0] active:translate-y-1 active:shadow-none transition-all"
+              >
+                Go Back
+              </button>
             </div>
           </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-14 h-14 bg-[#F1EEFF] rounded-2xl flex items-center justify-center border-[3px] border-[#5B4DDB]/20 text-3xl overflow-hidden">
+                {!avatar ? (
+                  <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
+                    <UserIcon size={24} strokeWidth={3} />
+                  </div>
+                ) : avatar.length <= 4 ? (
+                  <span>{avatar}</span>
+                ) : (
+                  <img
+                    src={avatar}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic">
+                  Profile Settings
+                </h2>
+                <p className="text-[#7B7F97] font-bold text-xs uppercase tracking-widest">
+                  Manage your hero identity
+                </p>
+              </div>
+            </div>
 
-          <div className="space-y-3">
-            <label className="flex items-center gap-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">
-              <UserIcon size={14} strokeWidth={3} />
-              Hero Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter hero name..."
-              className="w-full bg-[#F8F9FF] border-[4px] border-slate-100 rounded-[24px] px-6 py-5 font-black text-[#111827] text-lg focus:outline-none focus:border-[#5B4DDB] transition-all placeholder:text-slate-300 shadow-inner"
-              maxLength={20}
-              required
-            />
-          </div>
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-8 animate-in slide-in-from-left-4 duration-300"
+            >
+              {/* Avatar Selection */}
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">
+                  Choose Avatar
+                </label>
+                <div className="grid grid-cols-6 gap-2 bg-[#F8F9FF] p-4 rounded-[24px] border-[4px] border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setAvatar(null)}
+                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                      avatar === null
+                        ? "bg-white border-[3px] border-[#5B4DDB] shadow-sm scale-110 text-[#5B4DDB]"
+                        : "bg-slate-50 text-slate-300 hover:bg-white hover:scale-105"
+                    }`}
+                  >
+                    <UserIcon size={20} strokeWidth={3} />
+                  </button>
+                  {AVATARS.map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => setAvatar(a)}
+                      className={`w-10 h-10 flex items-center justify-center text-2xl rounded-xl transition-all ${
+                        avatar === a
+                          ? "bg-white border-[3px] border-[#5B4DDB] shadow-sm scale-110"
+                          : "hover:bg-white hover:scale-105"
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="flex flex-col gap-3 pt-2">
-            <button
-              type="submit"
-              disabled={
-                isSaving ||
-                !name.trim() ||
-                (name === currentName && avatar === currentAvatar)
-              }
-              className="w-full bg-[#5B4DDB] text-white px-8 py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-[#4539a5] shadow-[0_6px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_4px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 disabled:transform-none disabled:shadow-[0_6px_0_#3730a3]"
-            >
-              {isSaving ? "Saving Changes..." : "Save Identity"}
-            </button>
-            <button
-              type="button"
-              onClick={onLogout}
-              className="w-full bg-white text-rose-500 px-8 py-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] border-[4px] border-rose-50 shadow-[0_4px_0_#fff1f2] hover:bg-rose-50 transition-all flex items-center justify-center gap-3"
-            >
-              <LogOut size={18} strokeWidth={3} />
-              Sign Out
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full py-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] hover:text-[#111827] transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">
+                  <UserIcon size={14} strokeWidth={3} />
+                  Hero Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter hero name..."
+                  className="w-full bg-[#F8F9FF] border-[4px] border-slate-100 rounded-[24px] px-6 py-5 font-black text-[#111827] text-lg focus:outline-none focus:border-[#5B4DDB] transition-all placeholder:text-slate-300 shadow-inner"
+                  maxLength={20}
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={
+                    isSaving ||
+                    !name.trim() ||
+                    (name === currentName && avatar === currentAvatar)
+                  }
+                  className="w-full bg-[#5B4DDB] text-white px-8 py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-[#4539a5] shadow-[0_6px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_4px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 disabled:transform-none disabled:shadow-[0_6px_0_#3730a3]"
+                >
+                  {isSaving ? "Saving Changes..." : "Save Identity"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogoutClick}
+                  className="w-full bg-white text-rose-500 px-8 py-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] border-[4px] border-rose-50 shadow-[0_4px_0_#fff1f2] hover:bg-rose-50 transition-all flex items-center justify-center gap-3"
+                >
+                  <LogOut size={18} strokeWidth={3} />
+                  Sign Out
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full py-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] hover:text-[#111827] transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );

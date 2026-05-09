@@ -131,8 +131,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       if (!response.ok) throw new Error('Failed to update user');
       const data = await response.json();
       set({ user: data });
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
     }
   },
 
@@ -140,8 +140,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       set({ user: null, currentPage: "login", tasks: [], tags: [], quests: [] });
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
     }
   },
 
@@ -163,8 +163,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       if (!response.ok) throw new Error('Failed to fetch tags');
       const data = await response.json();
       set({ tags: data });
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
     }
   },
 
@@ -174,8 +174,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       if (!response.ok) throw new Error('Failed to fetch quests');
       const data = await response.json();
       set({ quests: data });
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
     }
   },
 
@@ -208,8 +208,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       if (!response.ok) throw new Error('Failed to add task');
       // Re-fetch tasks to get updated list with tags linked correctly
       await get().fetchTasks();
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
     }
   },
 
