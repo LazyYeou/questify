@@ -114,6 +114,17 @@ app.get("/api/auth/google/callback", async (c) => {
   return c.redirect("/");
 });
 
+app.post("/api/auth/logout", (c) => {
+  setCookie(c, "auth_token", "", {
+    path: "/",
+    httpOnly: true,
+    secure: c.req.url.startsWith("https"),
+    maxAge: 0,
+    sameSite: "Lax",
+  });
+  return c.json({ success: true });
+});
+
 // Auth Middleware
 app.use("/api/*", async (c, next) => {
   if (c.req.path.startsWith("/api/auth")) {

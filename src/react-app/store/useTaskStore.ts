@@ -58,6 +58,7 @@ interface TaskState {
   
   fetchUser: () => Promise<void>;
   updateUser: (name: string) => Promise<void>;
+  logout: () => Promise<void>;
   fetchTasks: () => Promise<void>;
   fetchTags: () => Promise<void>;
   addTask: (task: { title: string; description?: string; timeEstimation?: number; tags?: string[]; dueDate?: string | null }) => Promise<void>;
@@ -111,6 +112,15 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       if (!response.ok) throw new Error('Failed to update user');
       const data = await response.json();
       set({ user: data });
+    } catch (error: any) {
+      set({ error: error.message });
+    }
+  },
+
+  logout: async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      set({ user: null, currentPage: "login", tasks: [], tags: [] });
     } catch (error: any) {
       set({ error: error.message });
     }

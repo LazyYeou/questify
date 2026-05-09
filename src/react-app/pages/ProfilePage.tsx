@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Settings,
   Flame,
@@ -8,11 +8,15 @@ import {
   ShieldCheck,
   ChevronRight,
   Trophy,
+  X,
+  User as UserIcon,
+  LogOut,
 } from "lucide-react";
 import { useTaskStore } from "../store/useTaskStore";
 
 const ProfilePage: React.FC = () => {
-  const { user, tasks } = useTaskStore();
+  const { user, tasks, updateUser, logout } = useTaskStore();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const stats = useMemo(() => {
     const completedTasks = tasks.filter((t) => t.status === "completed");
@@ -96,7 +100,8 @@ const ProfilePage: React.FC = () => {
         </div>
       </div>
 
-      {/* ACHIEVEMENTS LIST */}
+      {/* ACHIEVEMENTS LIST - HIDDEN AS REQUESTED */}
+      {/* 
       <div className="space-y-6">
         <div className="flex items-center justify-between px-2 mb-2">
           <h2 className="text-xl sm:text-2xl font-black text-[#111827] uppercase tracking-tighter italic flex items-center gap-3">
@@ -112,37 +117,9 @@ const ProfilePage: React.FC = () => {
             View All
           </button>
         </div>
-
-        <div className="flex flex-col gap-5">
-          <AchievementRow
-            icon="🛡️"
-            title="Guardian"
-            desc="Finish 10 quests"
-            progress={stats.completedCount}
-            total={10}
-            level={1}
-            color="bg-blue-100 border-blue-200"
-          />
-          <AchievementRow
-            icon="🔥"
-            title="Consistency"
-            desc="Reach a 3 day streak"
-            progress={stats.streak}
-            total={3}
-            level={1}
-            color="bg-orange-100 border-orange-200"
-          />
-          <AchievementRow
-            icon="💎"
-            title="Wealthy"
-            desc="Collect 100 coins"
-            progress={user?.coins || 0}
-            total={100}
-            level={1}
-            color="bg-yellow-100 border-yellow-200"
-          />
-        </div>
+        ...
       </div>
+      */}
 
       {/* SETTINGS / SECONDARY ACTIONS */}
       <div className="space-y-4 pt-6">
@@ -151,13 +128,129 @@ const ProfilePage: React.FC = () => {
             <Settings className="text-[#7B7F97]" size={24} strokeWidth={3} />
           }
           label="Settings"
+          onClick={() => setIsSettingsOpen(true)}
         />
         <ActionRow
           icon={
             <ShieldCheck className="text-[#7B7F97]" size={24} strokeWidth={3} />
           }
           label="Privacy"
+          onClick={() => {}}
         />
+      </div>
+
+      {/* Settings Modal */}
+      {isSettingsOpen && (
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          currentName={user?.name || ""}
+          onSave={async (newName) => {
+            await updateUser(newName);
+            setIsSettingsOpen(false);
+          }}
+          onLogout={async () => {
+            await logout();
+            setIsSettingsOpen(false);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+const SettingsModal = ({
+  isOpen,
+  onClose,
+  currentName,
+  onSave,
+  onLogout,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  currentName: string;
+  onSave: (name: string) => Promise<void>;
+  onLogout: () => Promise<void>;
+}) => {
+  const [name, setName] = useState(currentName);
+  const [isSaving, setIsSaving] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setIsSaving(true);
+    await onSave(name.trim());
+    setIsSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#111827]/60 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white rounded-[40px] border-[4px] border-slate-100 shadow-[0_16px_0_#f1f5f9] p-6 sm:p-10 w-full max-w-lg animate-in zoom-in-95 duration-300 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <X size={24} strokeWidth={3} />
+        </button>
+
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 bg-[#F1EEFF] rounded-2xl flex items-center justify-center border-[3px] border-[#5B4DDB]/20">
+            <Settings className="text-[#5B4DDB]" size={28} strokeWidth={3} />
+          </div>
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic">
+              Profile Settings
+            </h2>
+            <p className="text-[#7B7F97] font-bold text-xs uppercase tracking-widest">
+              Manage your hero identity
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">
+              <UserIcon size={14} strokeWidth={3} />
+              Hero Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter hero name..."
+              className="w-full bg-[#F8F9FF] border-[4px] border-slate-100 rounded-[24px] px-6 py-5 font-black text-[#111827] text-lg focus:outline-none focus:border-[#5B4DDB] transition-all placeholder:text-slate-300 shadow-inner"
+              maxLength={20}
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <button
+              type="submit"
+              disabled={isSaving || !name.trim() || name === currentName}
+              className="w-full bg-[#5B4DDB] text-white px-8 py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-[#4539a5] shadow-[0_4px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_4px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 disabled:transform-none disabled:shadow-[0_6px_0_#3730a3]"
+            >
+              {isSaving ? "Saving Changes..." : "Save Identity"}
+            </button>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="w-full bg-white text-rose-500 px-8 py-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] border-[4px] border-rose-50 shadow-[0_4px_0_#fff1f2] hover:bg-rose-50 transition-all flex items-center justify-center gap-3"
+            >
+              <LogOut size={18} strokeWidth={3} />
+              Sign Out
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] hover:text-[#111827] transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
@@ -191,73 +284,19 @@ const StatCard = ({
   </div>
 );
 
-const AchievementRow = ({
-  icon,
-  title,
-  desc,
-  progress,
-  total,
-  level,
-  color,
-}: {
-  icon: string;
-  title: string;
-  desc: string;
-  progress: number;
-  total: number;
-  level: number;
-  color: string;
-}) => {
-  const percentage = Math.min((progress / total) * 100, 100);
-  const isCompleted = progress >= total;
-
-  return (
-    <div
-      className={`bg-white rounded-[32px] p-5 sm:p-6 border-[4px] flex items-center gap-5 sm:gap-6 shadow-[0_10px_0_#f1f5f9] active:translate-y-1 active:shadow-none transition-all ${isCompleted ? "border-[#F5B100] shadow-[0_10px_0_#d97706] bg-[#FFF9E6]" : "border-slate-100 hover:border-slate-200"}`}
-    >
-      <div
-        className={`w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-[20px] sm:rounded-[24px] flex items-center justify-center text-4xl sm:text-5xl border-[3px] border-white shadow-inner ${color} ${isCompleted ? "grayscale-0 transform -rotate-6 scale-110 drop-shadow-md" : "grayscale opacity-70"}`}
-      >
-        {icon}
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-start mb-1 sm:items-end gap-2">
-          <h3 className="text-sm sm:text-xl font-black text-[#111827] uppercase tracking-tighter italic line-clamp-2 pr-2 leading-tight">
-            {title}
-          </h3>
-          <span className="text-[10px] font-black text-[#7B7F97] uppercase tracking-widest shrink-0 bg-white px-2 py-1 rounded-lg border-2 border-slate-100 shadow-sm">
-            Lvl {level}
-          </span>
-        </div>
-        <p className="text-[10px] sm:text-xs font-bold text-[#7B7F97] mb-4 uppercase tracking-widest opacity-80">
-          {desc}
-        </p>
-
-        <div className="flex items-center gap-4">
-          <div className="flex-1 h-4 sm:h-5 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner border-2 border-white">
-            <div
-              className={`h-full rounded-full transition-all duration-1000 ease-out ${isCompleted ? "bg-[#F5B100]" : "bg-[#5B4DDB]"}`}
-              style={{ width: `${percentage}%` }}
-            />
-          </div>
-          <span className="text-[10px] font-black text-[#111827] min-w-[40px] text-right uppercase tracking-[0.1em]">
-            {progress} / {total}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const ActionRow = ({
   icon,
   label,
+  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
+  onClick: () => void;
 }) => (
-  <button className="w-full bg-white rounded-[24px] p-5 sm:p-6 border-[4px] border-slate-100 flex items-center justify-between shadow-[0_8px_0_#f1f5f9] active:translate-y-1 active:shadow-none transition-all group hover:border-[#5B4DDB]/30">
+  <button
+    onClick={onClick}
+    className="w-full bg-white rounded-[24px] p-5 sm:p-6 border-[4px] border-slate-100 flex items-center justify-between shadow-[0_8px_0_#f1f5f9] active:translate-y-1 active:shadow-none transition-all group hover:border-[#5B4DDB]/30"
+  >
     <div className="flex items-center gap-5">
       <div className="w-12 h-12 bg-slate-50 rounded-[16px] flex items-center justify-center border-[3px] border-white shadow-inner group-hover:bg-[#F1EEFF] transition-colors">
         {icon}
