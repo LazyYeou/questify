@@ -175,34 +175,73 @@ function UsernameModal() {
   const user = useTaskStore((state) => state.user);
   const updateUser = useTaskStore((state) => state.updateUser);
   const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   if (!user || user.name) return null;
+
+  const AVATARS = ["🦊", "🦁", "🐯", "🐱", "🐶", "🐻", "🐨", "🐼", "🐸", "🐷", "🐵", "🦄"];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     setIsLoading(true);
-    await updateUser(name.trim());
+    await updateUser(name.trim(), avatar);
     setIsLoading(false);
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#111827]/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#111827]/40 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-[32px] border-[4px] border-slate-100 shadow-[0_12px_0_#f1f5f9] p-6 sm:p-8 w-full max-w-md animate-in zoom-in-95 duration-300">
         <h2 className="text-2xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic mb-2">Welcome Hero!</h2>
-        <p className="text-[#7B7F97] font-bold text-xs sm:text-sm mb-6">What should we call you on your quests?</p>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your hero name..."
-            className="w-full bg-[#F8F9FF] border-[3px] border-slate-100 rounded-[20px] px-4 py-4 font-bold text-[#111827] focus:outline-none focus:border-[#5B4DDB] transition-colors"
-            maxLength={20}
-            required
-            autoFocus
-          />
+        <p className="text-[#7B7F97] font-bold text-xs sm:text-sm mb-6">Choose your identity for your quests</p>
+        
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">Choose Avatar</label>
+            <div className="grid grid-cols-6 gap-2 bg-[#F8F9FF] p-3 rounded-[24px] border-[3px] border-slate-100">
+              <button
+                type="button"
+                onClick={() => setAvatar(null)}
+                className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all ${
+                  avatar === null 
+                    ? "bg-white border-[2px] border-[#5B4DDB] shadow-sm scale-110 text-[#5B4DDB]" 
+                    : "bg-slate-50 text-slate-300 hover:bg-white"
+                }`}
+              >
+                <User size={18} strokeWidth={3} />
+              </button>
+              {AVATARS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setAvatar(a)}
+                  className={`w-9 h-9 flex items-center justify-center text-xl rounded-xl transition-all ${
+                    avatar === a 
+                      ? "bg-white border-[2px] border-[#5B4DDB] shadow-sm scale-110" 
+                      : "hover:bg-white"
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">Hero Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your hero name..."
+              className="w-full bg-[#F8F9FF] border-[3px] border-slate-100 rounded-[20px] px-4 py-4 font-bold text-[#111827] focus:outline-none focus:border-[#5B4DDB] transition-colors"
+              maxLength={20}
+              required
+              autoFocus
+            />
+          </div>
+
           <button
             type="submit"
             disabled={isLoading || !name.trim()}

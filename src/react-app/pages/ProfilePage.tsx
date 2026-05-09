@@ -13,10 +13,13 @@ import {
   LogOut,
 } from "lucide-react";
 import { useTaskStore } from "../store/useTaskStore";
+import { getLevelData } from "../store/levelUtils";
 
 const ProfilePage: React.FC = () => {
   const { user, tasks, updateUser, logout } = useTaskStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const levelData = getLevelData(user?.experience || 0);
 
   const stats = useMemo(() => {
     const completedTasks = tasks.filter((t) => t.status === "completed");
@@ -29,11 +32,50 @@ const ProfilePage: React.FC = () => {
       completedCount: completedTasks.length,
       totalMinutes,
       totalXP: user?.experience || 0,
-      nextLevelXP: (user?.level || 1) * 100,
-      progress: (user?.experience || 0) % 100,
+      nextLevelXP: levelData.nextLevelReq,
+      progress: levelData.progressPercent,
       streak: user?.streak || 0,
     };
-  }, [tasks, user]);
+  }, [tasks, user, levelData]);
+
+  const renderHeaderAvatar = () => {
+    const avatar = user?.avatarUrl;
+
+    if (!avatar) {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+          <UserIcon size="50%" strokeWidth={3} />
+        </div>
+      );
+    }
+
+    const isEmoji =
+      !avatar.includes("/") && !avatar.includes(".") && avatar.length <= 4;
+
+    if (isEmoji) {
+      return <span>{avatar}</span>;
+    }
+
+    return (
+      <img
+        src={avatar}
+        alt="Avatar"
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = "none";
+          const parent = (e.target as HTMLImageElement).parentElement;
+          if (parent) {
+            const div = document.createElement("div");
+            div.className =
+              "w-full h-full flex items-center justify-center bg-slate-100 text-slate-400";
+            div.innerHTML =
+              '<svg xmlns="http://www.w3.org/2000/svg" width="50%" height="50%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+            parent.appendChild(div);
+          }
+        }}
+      />
+    );
+  };
 
   return (
     <div className="w-full max-w-2xl mx-auto pb-32 animate-in fade-in duration-500 space-y-10 px-4 sm:px-0">
@@ -42,8 +84,8 @@ const ProfilePage: React.FC = () => {
         <div className="absolute top-0 w-full h-32 bg-gradient-to-b from-[#5B4DDB]/10 to-transparent rounded-[40px] -z-10" />
 
         <div className="relative mb-6 group">
-          <div className="w-32 h-32 rounded-[32px] bg-slate-50 flex items-center justify-center text-6xl shadow-[0_12px_0_#f1f5f9] border-[4px] border-white z-10 relative transform group-hover:scale-105 transition-transform duration-300">
-            {user?.avatarUrl || "🦊"}
+          <div className="w-32 h-32 rounded-[32px] bg-slate-50 flex items-center justify-center text-6xl shadow-[0_12px_0_#f1f5f9] border-[4px] border-white z-10 relative transform group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+            {renderHeaderAvatar()}
           </div>
           {/* Level Badge Overlay */}
           <div className="absolute -bottom-4 -right-4 bg-[#F5B100] text-white w-14 h-14 rounded-full flex items-center justify-center border-[4px] border-white shadow-[0_6px_0_#d97706] z-20 transform rotate-12 group-hover:rotate-0 transition-transform">
@@ -59,18 +101,13 @@ const ProfilePage: React.FC = () => {
         <h1 className="text-3xl sm:text-4xl font-black text-[#111827] mb-2 uppercase tracking-tighter italic">
           {user?.name || "Adventurer"}
         </h1>
-        <div className="bg-[#5B4DDB] text-white px-4 py-1.5 rounded-full border-[3px] border-[#4539a5] shadow-[0_4px_0_#3730a3]">
-          <p className="font-black text-[10px] uppercase tracking-[0.2em]">
-            Master Scholar
-          </p>
-        </div>
       </div>
 
       {/* STATISTICS GRID */}
       <div className="space-y-6">
         <h2 className="text-xl sm:text-2xl font-black text-[#111827] uppercase tracking-tighter italic px-2 flex items-center gap-3">
           <Target className="text-[#5B4DDB]" size={24} strokeWidth={3} />
-          Service Record
+          Record
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <StatCard
@@ -117,7 +154,6 @@ const ProfilePage: React.FC = () => {
             View All
           </button>
         </div>
-        ...
       </div>
       */}
 
@@ -145,8 +181,9 @@ const ProfilePage: React.FC = () => {
           isOpen={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
           currentName={user?.name || ""}
-          onSave={async (newName) => {
-            await updateUser(newName);
+          currentAvatar={user?.avatarUrl}
+          onSave={async (newName, newAvatar) => {
+            await updateUser(newName, newAvatar);
             setIsSettingsOpen(false);
           }}
           onLogout={async () => {
@@ -163,25 +200,43 @@ const SettingsModal = ({
   isOpen,
   onClose,
   currentName,
+  currentAvatar,
   onSave,
   onLogout,
 }: {
   isOpen: boolean;
   onClose: () => void;
   currentName: string;
-  onSave: (name: string) => Promise<void>;
+  currentAvatar: string | null | undefined;
+  onSave: (name: string, avatar: string | null) => Promise<void>;
   onLogout: () => Promise<void>;
 }) => {
   const [name, setName] = useState(currentName);
+  const [avatar, setAvatar] = useState<string | null>(currentAvatar || null);
   const [isSaving, setIsSaving] = useState(false);
 
   if (!isOpen) return null;
+
+  const AVATARS = [
+    "🦊",
+    "🦁",
+    "🐯",
+    "🐱",
+    "🐶",
+    "🐻",
+    "🐨",
+    "🐼",
+    "🐸",
+    "🐷",
+    "🐵",
+    "🦄",
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     setIsSaving(true);
-    await onSave(name.trim());
+    await onSave(name.trim(), avatar);
     setIsSaving(false);
   };
 
@@ -196,8 +251,20 @@ const SettingsModal = ({
         </button>
 
         <div className="flex items-center gap-4 mb-8">
-          <div className="w-14 h-14 bg-[#F1EEFF] rounded-2xl flex items-center justify-center border-[3px] border-[#5B4DDB]/20">
-            <Settings className="text-[#5B4DDB]" size={28} strokeWidth={3} />
+          <div className="w-14 h-14 bg-[#F1EEFF] rounded-2xl flex items-center justify-center border-[3px] border-[#5B4DDB]/20 text-3xl overflow-hidden">
+            {!avatar ? (
+              <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-300">
+                <UserIcon size={24} strokeWidth={3} />
+              </div>
+            ) : avatar.length <= 4 ? (
+              <span>{avatar}</span>
+            ) : (
+              <img
+                src={avatar}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
           <div>
             <h2 className="text-2xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic">
@@ -210,6 +277,40 @@ const SettingsModal = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Avatar Selection */}
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">
+              Choose Avatar
+            </label>
+            <div className="grid grid-cols-6 gap-2 bg-[#F8F9FF] p-4 rounded-[24px] border-[4px] border-slate-100">
+              <button
+                type="button"
+                onClick={() => setAvatar(null)}
+                className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                  avatar === null
+                    ? "bg-white border-[3px] border-[#5B4DDB] shadow-sm scale-110 text-[#5B4DDB]"
+                    : "bg-slate-50 text-slate-300 hover:bg-white hover:scale-105"
+                }`}
+              >
+                <UserIcon size={20} strokeWidth={3} />
+              </button>
+              {AVATARS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setAvatar(a)}
+                  className={`w-10 h-10 flex items-center justify-center text-2xl rounded-xl transition-all ${
+                    avatar === a
+                      ? "bg-white border-[3px] border-[#5B4DDB] shadow-sm scale-110"
+                      : "hover:bg-white hover:scale-105"
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="space-y-3">
             <label className="flex items-center gap-2 text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">
               <UserIcon size={14} strokeWidth={3} />
@@ -226,11 +327,15 @@ const SettingsModal = ({
             />
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 pt-2">
             <button
               type="submit"
-              disabled={isSaving || !name.trim() || name === currentName}
-              className="w-full bg-[#5B4DDB] text-white px-8 py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-[#4539a5] shadow-[0_4px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_4px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 disabled:transform-none disabled:shadow-[0_6px_0_#3730a3]"
+              disabled={
+                isSaving ||
+                !name.trim() ||
+                (name === currentName && avatar === currentAvatar)
+              }
+              className="w-full bg-[#5B4DDB] text-white px-8 py-5 rounded-[24px] font-black text-sm uppercase tracking-[0.2em] border-[4px] border-[#4539a5] shadow-[0_6px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_4px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 disabled:transform-none disabled:shadow-[0_6px_0_#3730a3]"
             >
               {isSaving ? "Saving Changes..." : "Save Identity"}
             </button>

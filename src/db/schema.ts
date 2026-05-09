@@ -67,3 +67,31 @@ export const taskTags = sqliteTable(
     pk: primaryKey({ columns: [t.taskId, t.tagId] }),
   }),
 );
+
+export const quests = sqliteTable("quests", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  type: text("type", { enum: ["daily", "weekly"] }).notNull(),
+  goalType: text("goal_type", { enum: ["tasks", "minutes"] }).notNull(),
+  goalValue: integer("goal_value").notNull(),
+  rewardExp: integer("reward_exp").notNull(),
+  rewardCoins: integer("reward_coins").notNull(),
+  icon: text("icon").notNull(),
+});
+
+export const userQuests = sqliteTable(
+  "user_quests",
+  {
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id),
+    questId: text("quest_id")
+      .notNull()
+      .references(() => quests.id),
+    lastClaimedAt: text("last_claimed_at"),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.questId] }),
+  }),
+);

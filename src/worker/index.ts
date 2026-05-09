@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { drizzle } from "drizzle-orm/d1";
-import { tasks, tags, users, taskTags } from "../db/schema";
+import { tasks, tags, users, taskTags, quests, userQuests } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import { getCookie, setCookie } from "hono/cookie";
 import { sign, verify } from "hono/jwt";
@@ -187,11 +187,11 @@ app.put("/api/users/me", async (c) => {
   const db = drizzle(c.env.db);
   const userId = c.get("userId");
   const body = await c.req.json();
-  const { name } = body;
+  const { name, avatarUrl } = body;
 
   const [updatedUser] = await db
     .update(users)
-    .set({ name })
+    .set({ name, avatarUrl })
     .where(eq(users.id, userId))
     .returning();
 
@@ -355,7 +355,7 @@ app.put("/api/tasks/:id", async (c) => {
     
     if (user) {
       const newExp = user.experience + expReward;
-      const newLevel = Math.floor(newExp / 100) + 1;
+      const newLevel = getLevelFromExp(newExp);
       const newCoins = user.coins + coinReward;
       const newWeeklyMinutes = (user.weeklyMinutes || 0) + (updatedTaskRow.timeEstimation || 0);
       
@@ -421,6 +421,161 @@ app.get("/api/tags", async (c) => {
   const allTags = await db.select().from(tags).where(eq(tags.userId, userId)).all();
   return c.json(allTags);
 });
+
+// Quest Endpoints
+app.get("/api/quests", async (c) => {
+  const db = drizzle(c.env.db);
+  const userId = c.get("userId");
+
+  const allQuests = await db.select().from(quests).all();
+  const userClaims = await db.select().from(userQuests).where(eq(userQuests.userId, userId)).all();
+
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  
+  // Start of week (Monday) - Immutable calculation
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day; // Adjust to Monday
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() + diff);
+  startOfWeek.setHours(0, 0, 0, 0);
+  const startOfWeekISO = startOfWeek.toISOString();
+
+  // Fetch tasks for progress calculation
+  const completedTasks = await db
+    .select()
+    .from(tasks)
+    .where(and(eq(tasks.userId, userId), eq(tasks.status, "completed")))
+    .all();
+
+  const questProgress = allQuests.map((q) => {
+    const periodStart = q.type === "daily" ? startOfDay : startOfWeekISO;
+    
+    // Filter tasks in current period
+    const tasksInPeriod = completedTasks.filter(t => t.updatedAt >= periodStart);
+    
+    let progress = 0;
+    if (q.goalType === "tasks") {
+      progress = tasksInPeriod.length;
+    } else if (q.goalType === "minutes") {
+      progress = tasksInPeriod.reduce((acc, t) => acc + (t.timeEstimation || 0), 0);
+    }
+
+    const claim = userClaims.find(uc => uc.questId === q.id);
+    const isClaimedInPeriod = claim && claim.lastClaimedAt && claim.lastClaimedAt >= periodStart;
+
+    return {
+      ...q,
+      currentProgress: progress,
+      isCompleted: progress >= q.goalValue,
+      isClaimed: !!isClaimedInPeriod,
+    };
+  });
+
+  return c.json(questProgress);
+});
+
+function getLevelFromExp(totalExp: number) {
+  let level = 1;
+  let xpInLevel = totalExp;
+  let nextLevelReq = 10;
+  
+  while (xpInLevel >= nextLevelReq) {
+    xpInLevel -= nextLevelReq;
+    level++;
+    nextLevelReq = Math.floor(10 * Math.pow(1.3, level - 1));
+  }
+  
+  return level;
+}
+
+app.post("/api/quests/:id/claim", async (c) => {
+  const db = drizzle(c.env.db);
+  const userId = c.get("userId");
+  const questId = c.req.param("id");
+
+  const quest = await db.select().from(quests).where(eq(quests.id, questId)).get();
+  if (!quest) return c.json({ error: "Quest not found" }, 404);
+
+  // Re-calculate progress to be safe
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  const startOfWeek = new Date(now.setDate(diff));
+  startOfWeek.setHours(0, 0, 0, 0);
+  const startOfWeekISO = startOfWeek.toISOString();
+  
+  const periodStart = quest.type === "daily" ? startOfDay : startOfWeekISO;
+
+  const claim = await db
+    .select()
+    .from(userQuests)
+    .where(and(eq(userQuests.userId, userId), eq(userQuests.questId, questId)))
+    .get();
+
+  if (claim && claim.lastClaimedAt && claim.lastClaimedAt >= periodStart) {
+    return c.json({ error: "Already claimed for this period" }, 400);
+  }
+
+  const completedTasks = await db
+    .select()
+    .from(tasks)
+    .where(and(eq(tasks.userId, userId), eq(tasks.status, "completed")))
+    .all();
+
+  const tasksInPeriod = completedTasks.filter(t => t.updatedAt >= periodStart);
+  
+  let progress = 0;
+  if (quest.goalType === "tasks") {
+    progress = tasksInPeriod.length;
+  } else if (quest.goalType === "minutes") {
+    progress = tasksInPeriod.reduce((acc, t) => acc + (t.timeEstimation || 0), 0);
+  }
+
+  if (progress < quest.goalValue) {
+    return c.json({ error: "Quest not completed" }, 400);
+  }
+
+  // Update claim
+  const claimTime = new Date().toISOString();
+  if (claim) {
+    await db.update(userQuests)
+      .set({ lastClaimedAt: claimTime })
+      .where(and(eq(userQuests.userId, userId), eq(userQuests.questId, questId)))
+      .run();
+  } else {
+    await db.insert(userQuests)
+      .values({ userId, questId, lastClaimedAt: claimTime })
+      .run();
+  }
+
+  // Award rewards
+  const user = await db.select().from(users).where(eq(users.id, userId)).get();
+  if (user) {
+    const newExp = user.experience + quest.rewardExp;
+    const newLevel = getLevelFromExp(newExp);
+    const newCoins = user.coins + quest.rewardCoins;
+
+    const [updatedUser] = await db.update(users)
+      .set({
+        experience: newExp,
+        level: newLevel,
+        coins: newCoins,
+      })
+      .where(eq(users.id, userId))
+      .returning();
+
+    return c.json({ success: true, user: updatedUser });
+  }
+
+  return c.json({ success: true });
+});
+
+// Update in task completion as well
+// app.put("/api/tasks/:id", ...) 
+// I need to find the task update endpoint logic and replace newLevel calculation there too.
+
 
 // Leaderboard Endpoints
 app.get("/api/leaderboard", async (c) => {

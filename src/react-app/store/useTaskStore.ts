@@ -34,6 +34,21 @@ export interface User {
   lastStreakAt: string | null;
 }
 
+export interface Quest {
+  id: string;
+  title: string;
+  description: string;
+  type: 'daily' | 'weekly';
+  goalType: 'tasks' | 'minutes';
+  goalValue: number;
+  currentProgress: number;
+  rewardExp: number;
+  rewardCoins: number;
+  icon: string;
+  isCompleted: boolean;
+  isClaimed: boolean;
+}
+
 export type Page =
   | "login"
   | "dashboard"
@@ -47,6 +62,7 @@ export type Page =
 interface TaskState {
   tasks: Task[];
   tags: Tag[];
+  quests: Quest[];
   user: User | null;
   activeTask: Task | null;
   editingTask: Task | null;
@@ -57,10 +73,12 @@ interface TaskState {
   toast: { message: string; type: 'success' | 'error' | 'info' } | null;
   
   fetchUser: () => Promise<void>;
-  updateUser: (name: string) => Promise<void>;
+  updateUser: (name: string, avatarUrl?: string | null) => Promise<void>;
   logout: () => Promise<void>;
   fetchTasks: () => Promise<void>;
   fetchTags: () => Promise<void>;
+  fetchQuests: () => Promise<void>;
+  claimQuestReward: (id: string) => Promise<void>;
   addTask: (task: { title: string; description?: string; timeEstimation?: number; tags?: string[]; dueDate?: string | null }) => Promise<void>;
   updateTask: (id: number, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: number) => Promise<void>;
@@ -75,6 +93,7 @@ interface TaskState {
 export const useTaskStore = create<TaskState>((set, get) => ({
   tasks: [],
   tags: [],
+  quests: [],
   user: null,
   activeTask: null,
   editingTask: null,
@@ -102,12 +121,12 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     }
   },
 
-  updateUser: async (name: string) => {
+  updateUser: async (name: string, avatarUrl?: string | null) => {
     try {
       const response = await fetch('/api/users/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, avatarUrl }),
       });
       if (!response.ok) throw new Error('Failed to update user');
       const data = await response.json();
@@ -120,7 +139,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   logout: async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      set({ user: null, currentPage: "login", tasks: [], tags: [] });
+      set({ user: null, currentPage: "login", tasks: [], tags: [], quests: [] });
     } catch (error: any) {
       set({ error: error.message });
     }
@@ -146,6 +165,36 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       set({ tags: data });
     } catch (error: any) {
       set({ error: error.message });
+    }
+  },
+
+  fetchQuests: async () => {
+    try {
+      const response = await fetch('/api/quests');
+      if (!response.ok) throw new Error('Failed to fetch quests');
+      const data = await response.json();
+      set({ quests: data });
+    } catch (error: any) {
+      set({ error: error.message });
+    }
+  },
+
+  claimQuestReward: async (id: string) => {
+    try {
+      const response = await fetch(`/api/quests/${id}/claim`, { method: 'POST' });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to claim reward');
+      }
+      const data = await response.json();
+      if (data.user) {
+        set({ user: data.user });
+      }
+      // Re-fetch quests to update isClaimed status
+      await get().fetchQuests();
+      get().showToast('Reward claimed! +EXP +Coins', 'success');
+    } catch (error: any) {
+      get().showToast(error.message, 'error');
     }
   },
 

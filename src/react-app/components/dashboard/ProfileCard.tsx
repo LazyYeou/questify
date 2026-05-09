@@ -1,15 +1,14 @@
 import React from "react";
 import { User as UserIcon } from "lucide-react";
 import { User } from "../../store/useTaskStore";
-import defaultUserIcon from "../../assets/icon/user.png";
+import { getLevelData } from "../../store/levelUtils";
 
 interface ProfileCardProps {
   user: User | null;
 }
 
 export const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
-  const currentExp = user?.experience || 0;
-  const progress = currentExp % 100;
+  const levelData = getLevelData(user?.experience || 0);
 
   const renderAvatar = () => {
     const avatar = user?.avatarUrl;
@@ -83,13 +82,13 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
                 Experience
               </span>
               <span className="text-[#111827] font-black text-[10px] uppercase tracking-tight">
-                {currentExp % 100} / 100 EXP
+                {levelData.xpInCurrentLevel} / {levelData.nextLevelReq} EXP
               </span>
             </div>
             <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner border-[2px] border-white">
               <div
                 className="h-full rounded-full bg-[#5B4DDB] transition-all duration-1000 ease-out shadow-[0_1px_0_#4539a5]"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${levelData.progressPercent}%` }}
               />
             </div>
           </div>
