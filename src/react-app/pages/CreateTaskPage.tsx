@@ -153,7 +153,7 @@ const TaskFormCard: React.FC = () => {
     };
 
     if (editingTask) {
-      await updateTask(editingTask.id, taskData);
+      await updateTask(editingTask.id, taskData as any);
       setEditingTask(null);
       showToast("Quest Updated!");
     } else {

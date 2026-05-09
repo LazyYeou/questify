@@ -122,7 +122,7 @@ app.get("/api/auth/google/callback", async (c) => {
   const secret = (c.env.JWT_SECRET || "fallback_secret").replace(/['"]/g, "");
   const token = await sign(payload, secret);
 
-  const isSecure = protocol === "https";
+  const isSecure = new URL(c.req.url).protocol === "https:";
 
   setCookie(c, "auth_token", token, {
     path: "/",
@@ -279,7 +279,7 @@ app.get("/api/tasks", async (c) => {
       acc[taskId].tags.push(curr.tag);
     }
     return acc;
-  }, {} as Record<number, unknown>);
+  }, {} as Record<number, any>);
 
   return c.json(Object.values(groupedTasks));
 });
@@ -506,7 +506,7 @@ app.get("/api/quests", async (c) => {
     const periodStart = q.type === "daily" ? startOfDay : startOfWeekISO;
     
     // Filter tasks in current period
-    const tasksInPeriod = completedTasks.filter(t => t.updatedAt >= periodStart);
+    const tasksInPeriod = completedTasks.filter(t => t.updatedAt && t.updatedAt >= periodStart);
     
     let progress = 0;
     if (q.goalType === "tasks") {
@@ -578,7 +578,7 @@ app.post("/api/quests/:id/claim", async (c) => {
     .where(and(eq(tasks.userId, userId), eq(tasks.status, "completed")))
     .all();
 
-  const tasksInPeriod = completedTasks.filter(t => t.updatedAt >= periodStart);
+  const tasksInPeriod = completedTasks.filter(t => t.updatedAt && t.updatedAt >= periodStart);
   
   let progress = 0;
   if (quest.goalType === "tasks") {
@@ -678,7 +678,7 @@ export default {
     const db = drizzle(env.db);
     
     // 1. Weekly Reset check (Sunday 23:59)
-    if (event.cron === "59 23 * * 0") {
+    if (event.cron === "59 23 * * SUN") {
       await db.update(users).set({ weeklyMinutes: 0 }).run();
     }
     

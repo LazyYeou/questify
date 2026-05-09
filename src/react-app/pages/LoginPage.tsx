@@ -1,4 +1,3 @@
-import React from "react";
 import happyMascot from "../assets/mascot/happy.png";
 
 export default function LoginPage() {

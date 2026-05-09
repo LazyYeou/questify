@@ -1,4 +1,3 @@
-import React from "react";
 import { Filter, Loader2, Plus } from "lucide-react";
 import { useDashboardState } from "./useDashboardState";
 import {
