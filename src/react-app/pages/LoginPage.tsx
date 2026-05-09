@@ -1,7 +1,7 @@
 import React from "react";
 import happyMascot from "../assets/mascot/happy.png";
 
-export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
+export default function LoginPage() {
   return (
     <div className="w-full min-h-screen bg-[#F8F9FF] font-sans relative flex items-center justify-center px-4 overflow-hidden">
       {/* Background decorations */}
@@ -10,10 +10,10 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-100 rounded-full blur-[100px] opacity-50" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md mt-12 sm:mt-0">
-        <div className="bg-white rounded-[32px] sm:rounded-[40px] border-[4px] border-slate-100 shadow-[0_12px_0_#f1f5f9] p-6 pt-10 sm:p-12 text-center relative">
+      <div className="relative z-10 w-full max-w-md pt-12 sm:pt-16">
+        <div className="bg-white rounded-[32px] sm:rounded-[40px] border-[4px] border-slate-100 shadow-[0_12px_0_#f1f5f9] p-6 pt-12 sm:p-12 sm:pt-16 text-center relative">
           {/* Mascot Positioned Above Card */}
-          <div className="absolute -top-16 sm:-top-20 left-1/2 -translate-x-1/2 w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center">
+          <div className="absolute -top-14 sm:-top-20 left-1/2 -translate-x-1/2 w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center drop-shadow-sm">
             <img
               src={happyMascot}
               alt="Happy Mascot"
@@ -21,7 +21,7 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
             />
           </div>
 
-          <div className="mt-4 sm:mt-10 mb-6 sm:mb-8">
+          <div className="mt-2 sm:mt-4 mb-6 sm:mb-8">
             <h1 className="text-3xl sm:text-4xl font-black text-[#111827] uppercase tracking-tighter italic leading-none mb-2">
               Welcome to <span className="text-[#5B4DDB]">Questify</span>
             </h1>
@@ -34,7 +34,7 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
 
           {/* Google Login Button */}
           <button
-            onClick={onLogin}
+            onClick={() => window.location.href = '/api/auth/google'}
             className="w-full bg-white text-[#111827] px-4 py-4 sm:px-6 sm:py-5 rounded-[24px] font-black text-xs sm:text-base uppercase tracking-widest border-[3px] border-slate-200 shadow-[0_6px_0_#e2e8f0] hover:border-slate-300 hover:translate-y-0.5 hover:shadow-[0_3px_0_#cbd5e1] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3 sm:gap-4 group"
           >
             <svg
@@ -63,29 +63,19 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
             Continue with Google
           </button>
 
-          <div className="mt-6 sm:mt-8 text-[9px] sm:text-xs font-bold text-[#7B7F97] uppercase tracking-widest leading-relaxed">
-            By logging in, you agree to our
-            <br className="sm:hidden" />
-            <span className="hidden sm:inline"> </span>
-            <a
-              href="#"
-              className="text-[#5B4DDB] hover:underline underline-offset-2"
-            >
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a
-              href="#"
-              className="text-[#5B4DDB] hover:underline underline-offset-2"
-            >
-              Privacy Policy
-            </a>
+          <div className="mt-6 sm:mt-8 text-[9px] sm:text-xs font-bold text-[#7B7F97] uppercase tracking-widest leading-relaxed flex flex-col items-center gap-1 sm:block">
+            <span>By logging in, you agree to our</span>
+            <span>
+              <a href="#" className="text-[#5B4DDB] hover:underline underline-offset-2">Terms of Service</a>
+              <span className="mx-1">and</span>
+              <a href="#" className="text-[#5B4DDB] hover:underline underline-offset-2">Privacy Policy</a>
+            </span>
           </div>
         </div>
 
         {/* Floating Bottom Element for extra gamification feel */}
         <div
-          className="absolute -bottom-5 right-2 sm:-bottom-6 sm:right-[-20px] bg-[#5B4DDB] text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border-[2px] sm:border-[3px] border-[#4539a5] shadow-[0_4px_0_#3730a3] text-[9px] sm:text-[10px] font-black uppercase tracking-widest rotate-6 animate-bounce"
+          className="absolute -bottom-4 right-4 sm:-bottom-6 sm:right-[-20px] bg-[#5B4DDB] text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border-[2px] sm:border-[3px] border-[#4539a5] shadow-[0_4px_0_#3730a3] text-[9px] sm:text-[10px] font-black uppercase tracking-widest rotate-6 animate-bounce"
           style={{ animationDuration: "3s" }}
         >
           Free Forever!

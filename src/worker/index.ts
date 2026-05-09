@@ -2,10 +2,15 @@ import { Hono } from "hono";
 import { drizzle } from "drizzle-orm/d1";
 import { tasks, tags, users, taskTags } from "../db/schema";
 import { eq, and } from "drizzle-orm";
+import { getCookie, setCookie } from "hono/cookie";
+import { sign, verify } from "hono/jwt";
 
 type Bindings = {
   db: D1Database;
   cache: KVNamespace;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  JWT_SECRET: string;
 };
 
 type Variables = {
@@ -14,22 +19,125 @@ type Variables = {
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
-// Mock Auth Middleware
-app.use("*", async (c, next) => {
-  const db = drizzle(c.env.db);
-  const mockId = 1;
+// Google OAuth
+app.get("/api/auth/google", (c) => {
+  const rawId = c.env.GOOGLE_CLIENT_ID || "dummy_id";
+  const clientId = rawId.replace(/['"]/g, ""); // Remove accidental quotes
+  
+  const isDev = c.req.url.includes("localhost") || c.req.url.includes("127.0.0.1");
+  const origin = isDev ? "http://localhost:5173" : new URL(c.req.url).origin;
+  const redirectUri = `${origin}/api/auth/google/callback`;
+  
+  if (clientId === "dummy_id") {
+    return c.redirect(`${redirectUri}?code=dummy_code`);
+  }
+  
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email profile&prompt=select_account`;
+  return c.redirect(url);
+});
 
-  const existingUser = await db.select().from(users).where(eq(users.id, mockId)).get();
-  if (!existingUser) {
-    await db.insert(users).values({
-      id: mockId,
-      email: "mock@example.com",
-      name: "Mock User",
-    }).run();
+app.get("/api/auth/google/callback", async (c) => {
+  const code = c.req.query("code");
+  if (!code) return c.json({ error: "No code provided" }, 400);
+
+  const rawId = c.env.GOOGLE_CLIENT_ID || "dummy_id";
+  const rawSecret = c.env.GOOGLE_CLIENT_SECRET || "dummy_secret";
+  const clientId = rawId.replace(/['"]/g, "");
+  const clientSecret = rawSecret.replace(/['"]/g, "");
+  
+  const isDev = c.req.url.includes("localhost") || c.req.url.includes("127.0.0.1");
+  const origin = isDev ? "http://localhost:5173" : new URL(c.req.url).origin;
+  const redirectUri = `${origin}/api/auth/google/callback`;
+
+  // Exchange code for token
+  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      code,
+      redirect_uri: redirectUri,
+      grant_type: "authorization_code",
+    }),
+  });
+
+  const tokenData = (await tokenRes.json()) as any;
+  if (!tokenRes.ok) {
+    if (clientId === "dummy_id") {
+      tokenData.access_token = "dummy_access_token";
+    } else {
+      return c.json(tokenData, 400);
+    }
   }
 
-  c.set("userId", mockId);
-  await next();
+  let userData: any = { email: "dummy@example.com", picture: "" };
+  if (tokenData.access_token !== "dummy_access_token") {
+    const userRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    userData = await userRes.json();
+  }
+
+  const db = drizzle(c.env.db);
+  let existingUser = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, userData.email))
+    .get();
+
+  if (!existingUser) {
+    [existingUser] = await db
+      .insert(users)
+      .values({
+        email: userData.email,
+        avatarUrl: userData.picture || null,
+      })
+      .returning();
+  }
+
+  const payload = {
+    userId: existingUser.id,
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // 30 days
+  };
+  const secret = (c.env.JWT_SECRET || "fallback_secret").replace(/['"]/g, "");
+  const token = await sign(payload, secret);
+
+  setCookie(c, "auth_token", token, {
+    path: "/",
+    httpOnly: true,
+    secure: c.req.url.startsWith("https"),
+    maxAge: 60 * 60 * 24 * 30,
+    sameSite: "Lax",
+  });
+
+  return c.redirect("/");
+});
+
+// Auth Middleware
+app.use("/api/*", async (c, next) => {
+  if (c.req.path.startsWith("/api/auth")) {
+    return next();
+  }
+
+  const token = getCookie(c, "auth_token");
+  if (!token) {
+    if (c.req.method === "GET" && c.req.path === "/api/users/me") {
+      return c.json(null, 200);
+    }
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  try {
+    const payload = await verify(token, c.env.JWT_SECRET || "fallback_secret");
+    c.set("userId", payload.userId as number);
+    await next();
+  } catch (e) {
+    if (c.req.method === "GET" && c.req.path === "/api/users/me") {
+      return c.json(null, 200);
+    }
+    return c.json({ error: "Unauthorized" }, 401);
+  }
 });
 
 // User Profile
@@ -62,6 +170,21 @@ app.get("/api/users/me", async (c) => {
   }
 
   return c.json(user);
+});
+
+app.put("/api/users/me", async (c) => {
+  const db = drizzle(c.env.db);
+  const userId = c.get("userId");
+  const body = await c.req.json();
+  const { name } = body;
+
+  const [updatedUser] = await db
+    .update(users)
+    .set({ name })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return c.json(updatedUser);
 });
 
 // Tasks Endpoints

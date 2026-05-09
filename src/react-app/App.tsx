@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { PomodoroTimer } from "./components/PomodoroTimer";
 import { useTaskStore } from "./store/useTaskStore";
@@ -50,15 +50,22 @@ function App() {
   } = useTaskStore();
 
   useEffect(() => {
-    fetchUser();
-    fetchTasks();
+    fetchUser().then(() => {
+       const state = useTaskStore.getState();
+       if (state.user) {
+         if (state.currentPage === "login") {
+           setCurrentPage("dashboard");
+         }
+         fetchTasks();
+       }
+    });
 
     // Cache/preload images
     PRELOAD_IMAGES.forEach((src) => {
       const img = new window.Image();
       img.src = src;
     });
-  }, [fetchUser, fetchTasks]);
+  }, [fetchUser, fetchTasks, setCurrentPage]);
 
   if (activeTask) {
     return (
@@ -73,7 +80,7 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case "login":
-        return <LoginPage onLogin={() => setCurrentPage("dashboard")} />;
+        return <LoginPage />;
       case "dashboard":
         return <DashboardPage />;
       case "quests":
@@ -89,7 +96,7 @@ function App() {
       case "achievements":
         return <AchievementsPage />;
       default:
-        return <LoginPage onLogin={() => setCurrentPage("dashboard")} />;
+        return <LoginPage />;
     }
   };
 
@@ -157,6 +164,54 @@ function App() {
 
       {/* Global Toast Notification */}
       <Toast />
+
+      {/* First-time Login Name Setup */}
+      <UsernameModal />
+    </div>
+  );
+}
+
+function UsernameModal() {
+  const user = useTaskStore((state) => state.user);
+  const updateUser = useTaskStore((state) => state.updateUser);
+  const [name, setName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  if (!user || user.name) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setIsLoading(true);
+    await updateUser(name.trim());
+    setIsLoading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#111827]/40 backdrop-blur-sm">
+      <div className="bg-white rounded-[32px] border-[4px] border-slate-100 shadow-[0_12px_0_#f1f5f9] p-6 sm:p-8 w-full max-w-md animate-in zoom-in-95 duration-300">
+        <h2 className="text-2xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic mb-2">Welcome Hero!</h2>
+        <p className="text-[#7B7F97] font-bold text-xs sm:text-sm mb-6">What should we call you on your quests?</p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter your hero name..."
+            className="w-full bg-[#F8F9FF] border-[3px] border-slate-100 rounded-[20px] px-4 py-4 font-bold text-[#111827] focus:outline-none focus:border-[#5B4DDB] transition-colors"
+            maxLength={20}
+            required
+            autoFocus
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !name.trim()}
+            className="w-full bg-[#5B4DDB] text-white px-6 py-4 rounded-[20px] font-black text-sm uppercase tracking-widest border-[3px] border-[#4539a5] shadow-[0_4px_0_#3730a3] hover:translate-y-0.5 hover:shadow-[0_2px_0_#3730a3] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 disabled:transform-none disabled:shadow-[0_4px_0_#3730a3]"
+          >
+            {isLoading ? "Saving..." : "Start Adventure"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

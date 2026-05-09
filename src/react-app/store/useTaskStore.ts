@@ -57,6 +57,7 @@ interface TaskState {
   toast: { message: string; type: 'success' | 'error' | 'info' } | null;
   
   fetchUser: () => Promise<void>;
+  updateUser: (name: string) => Promise<void>;
   fetchTasks: () => Promise<void>;
   fetchTags: () => Promise<void>;
   addTask: (task: { title: string; description?: string; timeEstimation?: number; tags?: string[]; dueDate?: string | null }) => Promise<void>;
@@ -85,7 +86,29 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   fetchUser: async () => {
     try {
       const response = await fetch('/api/users/me');
-      if (!response.ok) throw new Error('Failed to fetch user');
+      if (!response.ok) {
+        set({ currentPage: "login", user: null });
+        return;
+      }
+      const data = await response.json();
+      if (data) {
+        set({ user: data, currentPage: "dashboard" });
+      } else {
+        set({ user: null, currentPage: "login" });
+      }
+    } catch (error: any) {
+      set({ error: error.message, currentPage: "login", user: null });
+    }
+  },
+
+  updateUser: async (name: string) => {
+    try {
+      const response = await fetch('/api/users/me', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!response.ok) throw new Error('Failed to update user');
       const data = await response.json();
       set({ user: data });
     } catch (error: any) {
