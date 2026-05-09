@@ -13,7 +13,6 @@ export const XP_MULTIPLIER = 1.3;
  */
 export function getLevelData(totalExp: number) {
   let level = 1;
-  let currentLevelTotalXp = 0;
   let nextLevelReq = BASE_XP;
   
   // Track how much XP we've "spent" on previous levels

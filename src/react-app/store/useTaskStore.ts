@@ -116,8 +116,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       } else {
         set({ user: null, currentPage: "login" });
       }
-    } catch (error: any) {
-      set({ error: error.message, currentPage: "login", user: null });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message, currentPage: "login", user: null });
     }
   },
 

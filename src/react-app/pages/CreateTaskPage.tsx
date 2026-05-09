@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { ClipboardList, Target } from "lucide-react";
+import { Target } from "lucide-react";
 import { useTaskStore } from "../store/useTaskStore";
 
 // --- Sub-components styled to match Dashboard ---

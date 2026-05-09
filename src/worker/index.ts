@@ -143,7 +143,7 @@ app.use("/api/*", async (c, next) => {
     const payload = await verify(token, c.env.JWT_SECRET || "fallback_secret");
     c.set("userId", payload.userId as number);
     await next();
-  } catch (e) {
+  } catch {
     if (c.req.method === "GET" && c.req.path === "/api/users/me") {
       return c.json(null, 200);
     }
@@ -225,7 +225,7 @@ app.get("/api/tasks", async (c) => {
       acc[taskId].tags.push(curr.tag);
     }
     return acc;
-  }, {} as Record<number, any>);
+  }, {} as Record<number, unknown>);
 
   return c.json(Object.values(groupedTasks));
 });

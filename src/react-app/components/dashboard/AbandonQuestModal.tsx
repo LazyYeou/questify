@@ -1,6 +1,6 @@
 import React from "react";
 import { Task } from "../../store/useTaskStore";
-import { Trash2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import confuseMascot from "../../assets/mascot/confuse.png";
 
 interface AbandonQuestModalProps {

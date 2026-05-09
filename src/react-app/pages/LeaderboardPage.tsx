@@ -4,8 +4,6 @@ import {
   Calendar,
   History,
   Loader2,
-  Star,
-  Sparkles,
 } from "lucide-react";
 import { useTaskStore } from "../store/useTaskStore";
 import leaderboardMascot from "../assets/mascot/leaderboard.png";

@@ -5,7 +5,7 @@ import sadMascot from "../assets/mascot/sad.png";
 import happyMascot from "../assets/mascot/happy.png";
 
 export const PomodoroTimer: React.FC = () => {
-  const { activeTask, clearActiveTask, updateTask, user } = useTaskStore();
+  const { activeTask, clearActiveTask, updateTask } = useTaskStore();
 
   const [secondsLeft, setSecondsLeft] = useState(
     activeTask ? activeTask.timeEstimation * 60 : 0,
@@ -15,18 +15,22 @@ export const PomodoroTimer: React.FC = () => {
   const [showAbortConfirm, setShowAbortConfirm] = useState(false);
 
   useEffect(() => {
-    let interval: any = null;
+    let interval: ReturnType<typeof setInterval>;
 
     if (isActive && secondsLeft > 0 && activeTask) {
       interval = setInterval(() => {
         setSecondsLeft((prev) => prev - 1);
       }, 1000);
     } else if (activeTask && secondsLeft === 0 && !showCompletion) {
-      setIsActive(false);
-      setShowCompletion(true);
+      setTimeout(() => {
+        setIsActive(false);
+        setShowCompletion(true);
+      }, 0);
     }
 
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isActive, secondsLeft, showCompletion, activeTask]);
 
   if (!activeTask) return null;

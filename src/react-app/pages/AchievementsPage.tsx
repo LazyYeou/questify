@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Trophy, CheckCircle2, Lock } from "lucide-react";
+import { CheckCircle2, Lock } from "lucide-react";
 import { useTaskStore } from "../store/useTaskStore";
 
 // Dummy Achievement Data
