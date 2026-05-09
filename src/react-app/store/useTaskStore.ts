@@ -11,6 +11,7 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   tags?: Tag[];
+  icon?: string;
 }
 
 export interface Tag {
@@ -24,44 +25,123 @@ export interface User {
   id: number;
   email: string;
   name: string | null;
+  avatarUrl: string | null;
   experience: number;
   level: number;
+  streak: number;
+  longestStreak: number;
+  coins: number;
+  lastStreakAt: string | null;
 }
+
+export interface Quest {
+  id: string;
+  title: string;
+  description: string;
+  type: 'daily' | 'weekly';
+  goalType: 'tasks' | 'minutes';
+  goalValue: number;
+  currentProgress: number;
+  rewardExp: number;
+  rewardCoins: number;
+  icon: string;
+  isCompleted: boolean;
+  isClaimed: boolean;
+}
+
+export type Page =
+  | "login"
+  | "dashboard"
+  | "quests"
+  | "leaderboard"
+  | "shop"
+  | "profile"
+  | "create-task"
+  | "achievements";
 
 interface TaskState {
   tasks: Task[];
   tags: Tag[];
+  quests: Quest[];
   user: User | null;
   activeTask: Task | null;
+  editingTask: Task | null;
+  currentPage: Page;
+  isModalOpen: boolean;
   isLoading: boolean;
   error: string | null;
+  toast: { message: string; type: 'success' | 'error' | 'info' } | null;
   
   fetchUser: () => Promise<void>;
+  updateUser: (name: string, avatarUrl?: string | null) => Promise<void>;
+  logout: () => Promise<void>;
   fetchTasks: () => Promise<void>;
   fetchTags: () => Promise<void>;
-  addTask: (task: { title: string; description?: string; timeEstimation?: number; tags?: string[] }) => Promise<void>;
+  fetchQuests: () => Promise<void>;
+  claimQuestReward: (id: string) => Promise<void>;
+  addTask: (task: { title: string; description?: string; timeEstimation?: number; tags?: string[]; dueDate?: string | null }) => Promise<void>;
   updateTask: (id: number, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: number) => Promise<void>;
   setActiveTask: (task: Task) => void;
   clearActiveTask: () => void;
+  setEditingTask: (task: Task | null) => void;
+  setCurrentPage: (page: Page) => void;
+  setIsModalOpen: (isOpen: boolean) => void;
+  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 export const useTaskStore = create<TaskState>((set, get) => ({
   tasks: [],
   tags: [],
+  quests: [],
   user: null,
   activeTask: null,
+  editingTask: null,
+  currentPage: "login",
+  isModalOpen: false,
   isLoading: false,
   error: null,
+  toast: null,
 
   fetchUser: async () => {
     try {
       const response = await fetch('/api/users/me');
-      if (!response.ok) throw new Error('Failed to fetch user');
+      if (!response.ok) {
+        set({ currentPage: "login", user: null });
+        return;
+      }
+      const data = await response.json();
+      if (data) {
+        set({ user: data, currentPage: "dashboard" });
+      } else {
+        set({ user: null, currentPage: "login" });
+      }
+    } catch (error: unknown) {
+      set({ error: (error as Error).message, currentPage: "login", user: null });
+    }
+  },
+
+  updateUser: async (name: string, avatarUrl?: string | null) => {
+    try {
+      const response = await fetch('/api/users/me', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, avatarUrl }),
+      });
+      if (!response.ok) throw new Error('Failed to update user');
       const data = await response.json();
       set({ user: data });
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
+    }
+  },
+
+  logout: async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      set({ user: null, currentPage: "login", tasks: [], tags: [], quests: [] });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
     }
   },
 
@@ -83,8 +163,38 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       if (!response.ok) throw new Error('Failed to fetch tags');
       const data = await response.json();
       set({ tags: data });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
+    }
+  },
+
+  fetchQuests: async () => {
+    try {
+      const response = await fetch('/api/quests');
+      if (!response.ok) throw new Error('Failed to fetch quests');
+      const data = await response.json();
+      set({ quests: data });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
+    }
+  },
+
+  claimQuestReward: async (id: string) => {
+    try {
+      const response = await fetch(`/api/quests/${id}/claim`, { method: 'POST' });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to claim reward');
+      }
+      const data = await response.json();
+      if (data.user) {
+        set({ user: data.user });
+      }
+      // Re-fetch quests to update isClaimed status
+      await get().fetchQuests();
+      get().showToast('Reward claimed! +EXP +Coins', 'success');
     } catch (error: any) {
-      set({ error: error.message });
+      get().showToast(error.message, 'error');
     }
   },
 
@@ -98,8 +208,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       if (!response.ok) throw new Error('Failed to add task');
       // Re-fetch tasks to get updated list with tags linked correctly
       await get().fetchTasks();
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch (error: unknown) {
+      set({ error: (error as Error).message });
     }
   },
 
@@ -148,4 +258,13 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
   setActiveTask: (task) => set({ activeTask: task }),
   clearActiveTask: () => set({ activeTask: null }),
+  setEditingTask: (task) => set({ editingTask: task }),
+  setCurrentPage: (page) => set({ currentPage: page }),
+  setIsModalOpen: (isOpen) => set({ isModalOpen: isOpen }),
+  showToast: (message, type = 'success') => {
+    set({ toast: { message, type } });
+    setTimeout(() => {
+      set({ toast: null });
+    }, 3000);
+  },
 }));

@@ -54,3 +54,9 @@ dist-worker/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+plans/
+GEMINI.md
+scripts/
+
+.dev.vars
