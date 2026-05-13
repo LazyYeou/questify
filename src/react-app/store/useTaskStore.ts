@@ -51,6 +51,7 @@ export interface Quest {
 
 export type Page =
   | "login"
+  | "landing"
   | "dashboard"
   | "quests"
   | "leaderboard"
@@ -58,6 +59,7 @@ export type Page =
   | "profile"
   | "create-task"
   | "achievements";
+
 
 interface TaskState {
   tasks: Task[];
@@ -97,7 +99,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   user: null,
   activeTask: null,
   editingTask: null,
-  currentPage: "login",
+  currentPage: "landing",
   isModalOpen: false,
   isLoading: false,
   error: null,
