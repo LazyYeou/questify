@@ -42,19 +42,19 @@ function App() {
   } = useTaskStore();
 
   useEffect(() => {
-    fetchUser().then(() => {
-      const state = useTaskStore.getState();
-      if (state.user) {
-        if (state.currentPage === "login") {
-          setCurrentPage("dashboard");
-        }
-        fetchTasks();
+  fetchUser().then(() => {
+    const state = useTaskStore.getState();
+    if (state.user) {
+      if (state.currentPage === "landing" || state.currentPage === "login") {
+        setCurrentPage("dashboard");
       }
-    });
+      fetchTasks();
+    }
+  });
 
-    // Cache/preload images
-    PRELOAD_IMAGES.forEach((src) => {
-      const img = new window.Image();
+  // Cache/preload images
+  PRELOAD_IMAGES.forEach((src) => {
+    const img = new window.Image();
       img.src = src;
     });
   }, [fetchUser, fetchTasks, setCurrentPage]);
@@ -69,7 +69,7 @@ function App() {
 
   // Landing page — no nav bar
   if (currentPage === "landing") {
-    return <LandingPage onStart={() => setCurrentPage("dashboard")} />;
+    return <LandingPage onStart={() => setCurrentPage("login")} />;
   }
 
   const renderPage = () => {
