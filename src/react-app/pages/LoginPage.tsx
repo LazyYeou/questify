@@ -33,7 +33,7 @@ export default function LoginPage() {
           <div className="w-full h-px bg-slate-100 border-[2px] border-slate-50 rounded-full mb-6 sm:mb-8" />
 
           {/* Google Login Button */}
-          <button
+          {/* <button
             onClick={() =>
               (window.location.href = `/api/auth/google?origin=${encodeURIComponent(window.location.origin)}`)
             }
@@ -63,13 +63,14 @@ export default function LoginPage() {
               />
             </svg>
             Continue with Google
-          </button>
+          </button> */}
 
           {/* Guest Login Button */}
           <button
             onClick={async () => {
               await fetch("/api/auth/guest", { method: "POST" });
-              const { setCurrentPage, fetchUser, fetchTasks } = useTaskStore.getState();
+              const { setCurrentPage, fetchUser, fetchTasks } =
+                useTaskStore.getState();
               await fetchUser();
               await fetchTasks();
               setCurrentPage("dashboard");
