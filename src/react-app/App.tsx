@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { PomodoroTimer } from "./components/PomodoroTimer";
 import { useTaskStore } from "./store/useTaskStore";
+import LandingPage from "./pages/LandingPage";
 import QuestsPage from "./pages/QuestsPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -9,15 +10,10 @@ import LeaderboardPage from "./pages/LeaderboardPage";
 import ShopPage from "./pages/ShopPage";
 import ProfilePage from "./pages/ProfilePage";
 import AchievementsPage from "./pages/AchievementsPage";
-// import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import {
-  LayoutDashboard,
-  Target,
-  Trophy,
-  ShoppingCart,
-  User,
-  Sparkles,
+  LayoutDashboard, Target, Trophy,
+  ShoppingCart, User, Sparkles,
 } from "lucide-react";
 
 // Images to cache on load
@@ -41,28 +37,24 @@ const PRELOAD_IMAGES = [
 
 function App() {
   const {
-    activeTask,
-    isModalOpen,
-    currentPage,
-    setCurrentPage,
-    fetchUser,
-    fetchTasks,
+    activeTask, isModalOpen, currentPage,
+    setCurrentPage, fetchUser, fetchTasks,
   } = useTaskStore();
 
   useEffect(() => {
-    fetchUser().then(() => {
-       const state = useTaskStore.getState();
-       if (state.user) {
-         if (state.currentPage === "login") {
-           setCurrentPage("dashboard");
-         }
-         fetchTasks();
-       }
-    });
+  fetchUser().then(() => {
+    const state = useTaskStore.getState();
+    if (state.user) {
+      if (state.currentPage === "landing" || state.currentPage === "login") {
+        setCurrentPage("dashboard");
+      }
+      fetchTasks();
+    }
+  });
 
-    // Cache/preload images
-    PRELOAD_IMAGES.forEach((src) => {
-      const img = new window.Image();
+  // Cache/preload images
+  PRELOAD_IMAGES.forEach((src) => {
+    const img = new window.Image();
       img.src = src;
     });
   }, [fetchUser, fetchTasks, setCurrentPage]);
@@ -70,39 +62,32 @@ function App() {
   if (activeTask) {
     return (
       <div className="min-h-screen flex flex-col">
-        <div className="flex-1">
-          <PomodoroTimer />
-        </div>
+        <div className="flex-1"><PomodoroTimer /></div>
       </div>
     );
   }
 
+  // Landing page — no nav bar
+  if (currentPage === "landing") {
+    return <LandingPage onStart={() => setCurrentPage("login")} />;
+  }
+
   const renderPage = () => {
     switch (currentPage) {
-      case "login":
-        return <LoginPage />;
-      case "dashboard":
-        return <DashboardPage />;
-      case "quests":
-        return <QuestsPage />;
-      case "leaderboard":
-        return <LeaderboardPage />;
-      case "shop":
-        return <ShopPage />;
-      case "profile":
-        return <ProfilePage />;
-      case "create-task":
-        return <CreateTaskPage />;
-      case "achievements":
-        return <AchievementsPage />;
-      default:
-        return <LoginPage />;
+      case "login":        return <LoginPage />;
+      case "dashboard":    return <DashboardPage />;
+      case "quests":       return <QuestsPage />;
+      case "leaderboard":  return <LeaderboardPage />;
+      case "shop":         return <ShopPage />;
+      case "profile":      return <ProfilePage />;
+      case "create-task":  return <CreateTaskPage />;
+      case "achievements": return <AchievementsPage />;
+      default:             return <LoginPage />;
     }
   };
 
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 bg-[#F8F9FF] relative">
-      {/* Dynamic Back Button for Create Task and Achievements */}
       {(currentPage === "create-task" || currentPage === "achievements") && (
         <button
           onClick={() => {
@@ -118,7 +103,6 @@ function App() {
         </button>
       )}
 
-      {/* Main Content Area */}
       <div className="max-w-6xl mx-auto pb-24">{renderPage()}</div>
 
       {/* Global Bottom Navigation */}
@@ -195,7 +179,7 @@ function UsernameModal() {
       <div className="bg-white rounded-[32px] border-[4px] border-slate-100 shadow-[0_12px_0_#f1f5f9] p-6 sm:p-8 w-full max-w-md animate-in zoom-in-95 duration-300">
         <h2 className="text-2xl sm:text-3xl font-black text-[#111827] uppercase tracking-tighter italic mb-2">Welcome Hero!</h2>
         <p className="text-[#7B7F97] font-bold text-xs sm:text-sm mb-6">Choose your identity for your quests</p>
-        
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="space-y-3">
             <label className="text-[10px] font-black text-[#7B7F97] uppercase tracking-[0.2em] ml-2">Choose Avatar</label>
@@ -204,8 +188,8 @@ function UsernameModal() {
                 type="button"
                 onClick={() => setAvatar(null)}
                 className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all ${
-                  avatar === null 
-                    ? "bg-white border-[2px] border-[#5B4DDB] shadow-sm scale-110 text-[#5B4DDB]" 
+                  avatar === null
+                    ? "bg-white border-[2px] border-[#5B4DDB] shadow-sm scale-110 text-[#5B4DDB]"
                     : "bg-slate-50 text-slate-300 hover:bg-white"
                 }`}
               >
@@ -217,8 +201,8 @@ function UsernameModal() {
                   type="button"
                   onClick={() => setAvatar(a)}
                   className={`w-9 h-9 flex items-center justify-center text-xl rounded-xl transition-all ${
-                    avatar === a 
-                      ? "bg-white border-[2px] border-[#5B4DDB] shadow-sm scale-110" 
+                    avatar === a
+                      ? "bg-white border-[2px] border-[#5B4DDB] shadow-sm scale-110"
                       : "hover:bg-white"
                   }`}
                 >
@@ -306,7 +290,6 @@ function BottomItem({
       >
         {icon}
       </div>
-
       <span
         className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${
           active ? "text-[#5B4DDB]" : "text-[#7B7F97]"

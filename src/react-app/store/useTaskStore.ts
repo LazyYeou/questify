@@ -51,6 +51,7 @@ export interface Quest {
 
 export type Page =
   | "login"
+  | "landing"
   | "dashboard"
   | "quests"
   | "leaderboard"
@@ -58,6 +59,7 @@ export type Page =
   | "profile"
   | "create-task"
   | "achievements";
+
 
 interface TaskState {
   tasks: Task[];
@@ -97,27 +99,27 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   user: null,
   activeTask: null,
   editingTask: null,
-  currentPage: "login",
+  currentPage: "landing",
   isModalOpen: false,
   isLoading: false,
   error: null,
   toast: null,
 
   fetchUser: async () => {
-    try {
-      const response = await fetch('/api/users/me');
-      if (!response.ok) {
-        set({ currentPage: "login", user: null });
-        return;
-      }
-      const data = await response.json();
-      if (data) {
-        set({ user: data, currentPage: "dashboard" });
-      } else {
-        set({ user: null, currentPage: "login" });
-      }
+  try {
+    const response = await fetch('/api/users/me');
+    if (!response.ok) {
+      set({ user: null });  // ← hapus currentPage dari sini
+      return;
+    }
+    const data = await response.json();
+    if (data) {
+      set({ user: data }); // ← hapus currentPage dari sini
+    } else {
+      set({ user: null });
+    }
     } catch (error: unknown) {
-      set({ error: (error as Error).message, currentPage: "login", user: null });
+      set({ error: (error as Error).message, user: null });
     }
   },
 
